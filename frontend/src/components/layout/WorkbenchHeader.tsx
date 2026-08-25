@@ -42,13 +42,14 @@ export const WorkbenchHeader: React.FC<WorkbenchHeaderProps> = ({
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-sm font-semibold tracking-tight text-white flex items-center gap-2 truncate">
-                <span>Grant Review Recusal Graph</span>
-                <span className="hidden md:inline-flex px-1.5 py-0.5 text-[10px] font-mono font-normal bg-cobalt-950 text-cobalt-300 border border-cobalt-800 rounded">
+              <h1 className="text-sm font-semibold tracking-tight text-white truncate">
+                Grant Review Recusal Graph
+              </h1>
+              <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono whitespace-nowrap">
+                <span className="hidden md:inline-flex px-1.5 py-px font-normal bg-cobalt-950 text-cobalt-300 border border-cobalt-800 rounded">
                   Intelligent Contract
                 </span>
-              </h1>
-              <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono">
+                <span className="hidden md:inline text-slate-600">·</span>
                 <a
                   href={getExplorerAddressUrl(DEPLOYED_CONTRACT_ADDRESS)}
                   target="_blank"

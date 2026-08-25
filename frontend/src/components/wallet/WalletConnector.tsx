@@ -47,9 +47,10 @@ export const WalletConnector: React.FC = () => {
       {/* Connected Account Badge */}
       <div className="flex items-center gap-2 px-3 py-1 bg-workbench-surface border border-workbench-border rounded text-xs">
         {walletState.providerDetail && (
-          <span
-            className="w-4 h-4 rounded overflow-hidden flex items-center justify-center shrink-0"
-            dangerouslySetInnerHTML={{ __html: walletState.providerDetail.info.icon }}
+          <img
+            src={walletState.providerDetail.info.icon}
+            alt={`${walletState.providerDetail.info.name} logo`}
+            className="w-4 h-4 rounded shrink-0 object-contain"
           />
         )}
         <span className="font-mono text-slate-200">

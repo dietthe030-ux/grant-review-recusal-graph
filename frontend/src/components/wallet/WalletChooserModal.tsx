@@ -87,11 +87,10 @@ export const WalletChooserModal: React.FC = () => {
                   className="flex items-center justify-between p-3 rounded-md border border-workbench-border bg-workbench-bg hover:border-slate-600 transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <div
-                      className="w-8 h-8 rounded flex items-center justify-center bg-slate-800 p-1 shrink-0 overflow-hidden"
-                      dangerouslySetInnerHTML={{
-                        __html: announced?.info.icon || walletConfig.icon,
-                      }}
+                    <img
+                      src={announced?.info.icon || walletConfig.icon}
+                      alt={`${announced?.info.name || walletConfig.name} logo`}
+                      className="w-8 h-8 rounded bg-slate-800 p-1 shrink-0 object-contain"
                     />
                     <div>
                       <div className="text-sm font-medium text-white flex items-center gap-2">
