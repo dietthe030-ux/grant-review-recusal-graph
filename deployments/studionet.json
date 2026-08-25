@@ -1,0 +1,24 @@
+{
+  "network": "Studionet",
+  "chain_id": 61999,
+  "rpc": "https://studio.genlayer.com/api",
+  "explorer": "https://explorer-studio.genlayer.com/address/0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8",
+  "contract_address": "0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8",
+  "deployment_transaction": "0x895e0b704553eea0a84c960bef8e2efaafd8ac25f29d5280f405f14863b052b8",
+  "source_file": "contracts/grant_review_recusal_graph.py",
+  "source_sha256": "271b3ab1bf8d9b985459fe976b805476974a8a79820415e42eafba631fdac626",
+  "git_commit": "PENDING_LOCAL_RELEASE_COMMIT",
+  "constructor": {
+    "upgrader": "0x34b92E6553eaCA11A00A9d86d75d8a7881779D78"
+  },
+  "classification": "UPGRADABLE",
+  "linked_contracts": [],
+  "configuration_transactions": [],
+  "upgrade_rehearsal": {
+    "separate_contract": "0xaD60Ce10E0BA00009DC363686bA9946C6a3C8DBf",
+    "deployment_transaction": "0x9792f0f489fb0eee763a4e496dcd905a718f8f10bb96fdbbf08a285a4f1c75a4",
+    "upgrade_transaction": "0x900d17d32e703d36cafddd5a912af4fb170c372176ef707da2adf5007090ec6a",
+    "post_upgrade_source_sha256": "271b3ab1bf8d9b985459fe976b805476974a8a79820415e42eafba631fdac626",
+    "state_preserved": true
+  }
+}
