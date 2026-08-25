@@ -32,6 +32,16 @@ Expected rejection rows were `FINALIZED` with leader `ERROR`, followed by an unc
 | Assessment replay rejection | `0xb0e203ba7d5154c0ddc2e8bd2a13fc450308e0d6d1c9ae4726d48c3cabaa7a28` | Rejected; attempt and fingerprint unchanged |
 | Applicant capacity boundary | `0xef146fa70cbf40e52a424e28f9231d3ceb576418a3a7efc6d9ed9f63c7a1f913` | Fifth applicant rejected; count remains 4 |
 
+## Retained failed and non-mutating attempts
+
+No attempted Studio case is omitted:
+
+- Backup-promotion pair `(0, 0)` first attempt `0x49498e992c5cdba623ddc44bf6fe7b95e28c53a5815b806347c3000389d1b304` finalized `MAJORITY_DISAGREE`; leader execution succeeded but consensus did not authorize state mutation. Authoritative assessment readback remained absent.
+- Its second attempt `0xa746718a3ab679fbd8722e99eb821a0624ec812bc79f63b588bfd64f7d33f18f` also finalized `MAJORITY_DISAGREE`; authoritative assessment readback again remained absent.
+- The third attempt `0xce4191f660109f7d6c18430ec93bb148ac51ffd00345ebea3f57e6b6e91006ea` finalized `MAJORITY_AGREE`; authoritative readback became `CURRENT_INSTITUTIONAL_OVERLAP / RECUSED`, enabling the documented deterministic backup promotion.
+- During the HOLD-round parallel screening call, Studio RPC returned an HTML error body (`Unexpected token '<'`) instead of JSON. Chain readback showed both assessments had been accepted; no blind automatic resubmission was made.
+- The subsequent explicit duplicate probe `0xd9b6890b5385160997440d8bca32898a028c00e05e149d8f1230755d49ece408` finalized with leader `ERROR`. The existing pair remained attempt 1 with the same `NO_PUBLIC_CONFLICT_FOUND / ELIGIBLE` assessment, proving unchanged state.
+
 ## Upgrade rehearsal
 
 Separate contract: `0xaD60Ce10E0BA00009DC363686bA9946C6a3C8DBf`
