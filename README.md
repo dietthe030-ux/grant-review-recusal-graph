@@ -1,78 +1,64 @@
 # Grant Review Recusal Graph
 
-Grant Review Recusal Graph is a GenLayer-native workbench for screening grant-review assignments against ambiguous public evidence. Its Intelligent Contract compares ORCID identity and employment records, PubMed co-authorship, and NIH RePORTER participation, then reaches validator consensus on recusal, eligibility, manual review, or an evidence hold.
+A GenLayer-native workbench that reaches validator consensus on public conflict evidence before a grant-review assignment can become active.
 
-The React frontend exposes the resulting applicant-reviewer graph, conflict matrix, source-level evidence, deterministic backup promotion, lifecycle controls, and append-only audit events. Public reads require no wallet. Writes use an explicitly selected EIP-6963 provider (MetaMask, OKX Wallet, or Rabby) on GenLayer Studionet.
+## Verified links
 
-## Problem
+- Studionet contract: [`0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8`](https://explorer-studio.genlayer.com/address/0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8)
+- Deployment transaction: `0x895e0b704553eea0a84c960bef8e2efaafd8ac25f29d5280f405f14863b052b8`
+- [Exact transaction evidence and live proof matrix](docs/VERIFICATION.md)
+- Live web app: added after the reviewed Vercel deployment
 
-Grant administrators must avoid assigning reviewers with recent collaboration or current institutional overlap, yet the evidence is fragmented, ambiguous, and changes over time. A spreadsheet can record a declaration but cannot independently compare public sources, preserve a consensus result, or prove why a reviewer was recused or promoted.
+## Trust problem
 
-## Why GenLayer
+Grant administrators choose reviewers, reviewers self-declare relationships, and public research records are fragmented and ambiguous. Any one party could omit a relationship, interpret a name match selectively, or change an off-chain spreadsheet without leaving an authoritative explanation. Applicants and auditors therefore need a decision whose evidence, consequence, and history are not controlled by one administrator, reviewer, server, or model response.
 
-The core decision requires comparative reasoning over live public web evidence. The Intelligent Contract uses GenLayer nondeterministic execution to interpret ORCID, PubMed, and NIH RePORTER records, while deterministic rules validate identities, dates, source status, consequences, and canonical fingerprints across leader and validator execution. Consensus therefore controls the state transition instead of a frontend, private server, or single model response.
+## Why GenLayer is essential
 
-## Actors
+The central decision compares live ORCID identities and employment, PubMed co-authorship, and NIH RePORTER participation. The Intelligent Contract uses `gl.nondet.exec_prompt` for comparative interpretation while deterministic rules bind exact identities, dates, source status, policy consequences, and canonical fingerprints. GenLayer validators must agree before the contract records `RECUSED`, `ELIGIBLE`, `MANUAL_HOLD`, or `EVIDENCE_HOLD` and before that result can affect panel activation. A conventional static frontend cannot provide this consensus-controlled state consequence.
 
-- **Round administrator:** creates a round, registers participants, plans assignments, freezes the cohort, finalizes screening, activates the panel, and closes or cancels the round.
-- **Applicant and reviewer:** acknowledge their registered identity; reviewers may decline before activation.
-- **Permissionless assessor:** requests screening of an applicant-reviewer pair using public evidence.
-- **Auditor or public observer:** reads rounds, assessments, effective panels, and append-only events without connecting a wallet.
+## How it works
 
-## End-to-end journeys
+1. The **administrator** creates a round with a client nonce, quorum, and deadlines; registers applicants, primaries, and backups; sets assignments; and freezes the cohort.
+2. **Applicants and reviewers** acknowledge their registered identity. Reviewers may decline before activation.
+3. A **permissionless assessor** requests screening for each required applicant-reviewer pair.
+4. Validators compare the public evidence and commit one of five policy outcomes. Finalization reaches `READY` only when requirements pass; unresolved or manual-review evidence produces `HOLD`.
+5. Activation keeps an eligible primary or deterministically promotes the first eligible backup while enforcing quorum. The administrator later closes the active round.
+6. An **auditor or public observer** reads rounds, pair evidence, effective panels, and append-only events without a wallet.
 
-1. An administrator creates a round with a client nonce, quorum, and deadlines; adds applicants, primary reviewers, and backups; then sets immutable assignment plans.
-2. Participants acknowledge identity and the administrator freezes the cohort.
-3. Any assessor screens required pairs. Validators compare exact ORCID identities, PubMed records, and NIH projects and commit one of five policy outcomes.
-4. Finalization moves the round to `READY` only when requirements are satisfied; unresolved or manual-review evidence moves it to `HOLD`.
-5. Activation deterministically keeps an eligible primary or promotes the first eligible backup while enforcing quorum. The administrator later closes the active round.
+## Architecture
 
-## Architecture and sources of truth
+- `contracts/grant_review_recusal_graph.py` owns policy, authorization, consensus decisions, lifecycle transitions, panel consequences, and audit events.
+- GenLayer Studionet is the authoritative state and transaction history.
+- `frontend/` is a static React client. It reads the contract directly and sends writes only through the explicitly selected injected wallet. It has no backend, database, indexer, or privileged decision path.
+- ORCID, PubMed, and NIH RePORTER are untrusted public evidence sources. Declared institutions are supporting metadata only.
 
-- `contracts/grant_review_recusal_graph.py` is the authoritative policy, authorization, lifecycle, consensus, and audit state machine.
-- GenLayer Studionet is the authoritative deployed state and transaction history.
-- ORCID, PubMed, and NIH RePORTER are untrusted public evidence inputs; declared institutions are supporting metadata only.
-- `frontend/` is a static client. It performs public contract reads directly and sends writes only through the user-selected injected provider. It has no backend, database, indexer, or privileged decision path.
+## Intelligent Contract
 
-## State model
+Actors are the round administrator, registered applicants/reviewers, permissionless assessors, and public readers. Rounds progress through `DRAFT → FROZEN → SCREENING → READY → ACTIVE → CLOSED`; `HOLD` retains unresolved/manual-review rounds and `CANCELLED` terminates a draft.
 
-Rounds progress through `DRAFT → FROZEN → SCREENING → READY → ACTIVE → CLOSED`. `HOLD` retains rounds requiring evidence or manual review, and `CANCELLED` is the terminal pre-activation cancellation state. Pair outcomes map to `RECUSED`, `ELIGIBLE`, `MANUAL_HOLD`, or `EVIDENCE_HOLD`; the contract, not the UI, enforces every transition.
+Key writes are `create_round`, `add_applicant`, `add_reviewer`, `set_assignment`, `acknowledge_identity`, `decline_assignment`, `freeze_round`, `screen_pair`, `finalize_screening`, `activate_panel`, `close_round`, and `cancel_round`. Public views expose rounds, participants, assignments, pair assessments, effective panels, events, nonce resolution, and the upgrader.
+
+Each validator receives bounded, delimiter-isolated evidence. Deterministic validation rejects prompt-injected output, identity mismatch, unusable sources, invalid consequence mappings, and non-canonical results. Validators compare the normalized policy tuple and fingerprint; disagreement cannot mutate authoritative state. The contract transfers no funds: its value consequence is reviewer eligibility, recusal, hold, deterministic backup promotion, and panel activation.
 
 ## Transaction lifecycle
 
-The frontend persists canonical intent before opening a wallet, records the returned hash immediately, and never automatically resubmits after a hash exists. It polls that exact hash with bounded backoff and accepts success only after GenLayer `FINALIZED`, successful leader execution, non-disagreeing consensus, and action-specific authoritative readback. Missing consensus, missing leader status, failed readback, timeouts, and unsupported actions fail closed.
-
-## Security and integrity
-
-- EIP-6963 discovers only MetaMask, OKX Wallet, and Rabby; each write stays bound to the explicitly selected provider object.
-- Reload starts disconnected and does not silently restore wallet authorization.
-- ORCID identities are checksum-validated and bound to returned identifiers before evidence is considered.
-- Empty, malformed, oversized, unavailable, or mismatched evidence cannot grant clearance.
-- Caps bound rounds, participants, pairs, events, evidence records, response sizes, and screening retries.
-- Audit events expose title hashes instead of raw round titles.
-
-## Limitations
-
-The contract evaluates only public ORCID employment, PubMed co-authorship, and NIH project evidence. It does not determine private financial interests, family relationships, confidential collaborations, scientific merit, or final funding decisions. Public APIs can be incomplete or unavailable; those conditions intentionally produce a hold rather than eligibility.
-
-## Live deployment
-
-- Network: GenLayer Studionet (`61999` / `0xf22f`)
-- Contract: [`0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8`](https://explorer-studio.genlayer.com/address/0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8)
-- Deployment transaction: `0x895e0b704553eea0a84c960bef8e2efaafd8ac25f29d5280f405f14863b052b8`
-- Exact contract source SHA-256: `271b3ab1bf8d9b985459fe976b805476974a8a79820415e42eafba631fdac626`
+The frontend stores canonical intent before prompting the selected wallet and records the returned hash immediately. It never automatically resubmits after a hash exists. It reconciles that exact hash with bounded polling and accepts success only after GenLayer `FINALIZED`, leader execution `SUCCESS`, non-disagreeing consensus, and action-specific authoritative readback. Missing consensus, missing leader status, readback failure, timeout, and unsupported readback all fail closed.
 
 ## Run locally
 
+Prerequisites: Node.js 20+ and npm.
+
 ```bash
 cd frontend
+copy .env.example .env.local
 npm ci
 npm run dev
 ```
 
-The frontend defaults to the deployed Studionet contract. Optional overrides are documented in `frontend/.env.example`.
+The environment file contains optional `VITE_GENLAYER_RPC_URL`, `VITE_GENLAYER_EXPLORER_URL`, and `VITE_CONTRACT_ADDRESS` overrides. Defaults point to the verified Studionet deployment; no secret is required for public reads.
 
-## Verification
+## Tests and verification
 
 ```bash
 cd frontend
@@ -80,17 +66,29 @@ npm test
 npm run typecheck
 npm run lint
 npm run build
+npm audit --omit=dev
 ```
 
-Contract tests and deployment evidence are documented in [`docs/VERIFICATION.md`](docs/VERIFICATION.md). Recovery and upgrade boundaries are documented in [`docs/RECOVERY.md`](docs/RECOVERY.md).
+Current frontend result: 6 test files / 49 tests passed; TypeScript and ESLint passed with zero errors; production build passed; production dependency audit found zero vulnerabilities. Contract verification: 60 direct tests and 1 pinned-runtime test passed; Ruff, GenVM lint, and dependency checks passed. See [the retained live evidence](docs/VERIFICATION.md).
 
-## Evidence
+## Deployment
 
-- [Studionet contract](https://explorer-studio.genlayer.com/address/0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8)
-- [Live proof matrix and exact transaction evidence](docs/VERIFICATION.md)
-- [Deployment manifest](deployments/studionet.json)
-- [Recovery and upgrade rehearsal](docs/RECOVERY.md)
+- Network: GenLayer Studionet (`61999` / `0xf22f`)
+- RPC: `https://studio.genlayer.com/api`
+- Contract source SHA-256: `271b3ab1bf8d9b985459fe976b805476974a8a79820415e42eafba631fdac626`
+- Upgrader: `0x34b92E6553eaCA11A00A9d86d75d8a7881779D78`
 
-## Trust boundary
+The [deployment manifest](deployments/studionet.json) binds constructor, source, transaction, and address. The contract is upgradable through its authorized Root Slot path; reset and authority-loss boundaries plus the separate upgrade rehearsal are documented in [Recovery](docs/RECOVERY.md).
 
-Declared institutions are untrusted supporting metadata. Clearance is never inferred from missing, malformed, oversized, or unavailable public evidence; those conditions fail closed to an evidence hold. The project does not evaluate private disclosures, familial relationships, or final funding decisions.
+## Security and trust boundaries
+
+- EIP-6963 discovery is restricted to MetaMask, OKX Wallet, and Rabby; writes remain bound to the chosen provider object.
+- Reload starts disconnected and never silently restores wallet authorization.
+- ORCID checksums and returned identifiers must match before evidence is usable.
+- Empty, malformed, oversized, unavailable, or mismatched evidence cannot grant clearance.
+- Caps bound rounds, participants, pairs, events, public records, response sizes, and retries.
+- Audit events expose title hashes rather than raw titles.
+
+## Known limitations
+
+The contract evaluates only public ORCID employment, PubMed co-authorship, and NIH project evidence. It does not determine private financial interests, family relationships, confidential collaborations, scientific merit, or final funding decisions. Public APIs can be incomplete or unavailable; those conditions intentionally produce a hold rather than eligibility.

@@ -3,6 +3,7 @@
 Exact source SHA-256: `271b3ab1bf8d9b985459fe976b805476974a8a79820415e42eafba631fdac626`
 
 Contract: `0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8`
+Frontend candidate commit: `17a9203a2efc34d6bf5357e53ce1049e3f22aec0`
 
 Deployment transaction: `0x895e0b704553eea0a84c960bef8e2efaafd8ac25f29d5280f405f14863b052b8`
 
