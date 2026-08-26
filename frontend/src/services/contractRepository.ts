@@ -279,34 +279,27 @@ export class ContractRepository {
     return String(raw || '').toLowerCase();
   }
 
-  /**
-   * Coordinates fetching the complete state for a round in a single sequential pipeline.
-   * Public reads function without requiring a connected wallet.
-   */
+  /** Loads a round through bounded parallel public reads without requiring a wallet. */
   public async loadFullRoundState(roundId: number): Promise<FullRoundState> {
     const round = await this.getRound(roundId);
-
-    // Fetch applicants
-    const applicants = await Promise.all(
-      Array.from({ length: round.applicant_count }, (_, i) =>
-        this.getParticipant(roundId, i, false)
-      )
-    );
-
-    // Fetch primary + backup reviewers
     const totalReviewers = round.reviewer_count + (round.backup_count || round.backup_reviewer_count || 0);
-    const reviewers = await Promise.all(
-      Array.from({ length: totalReviewers }, (_, i) =>
-        this.getParticipant(roundId, i, true)
-      )
-    );
-
-    // Fetch assignments
-    const assignmentResults = await Promise.allSettled(
-      Array.from({ length: round.applicant_count }, (_, i) =>
-        this.getAssignment(roundId, i)
-      )
-    );
+    const [applicants, reviewers, assignmentResults] = await Promise.all([
+      Promise.all(
+        Array.from({ length: round.applicant_count }, (_, i) =>
+          this.getParticipant(roundId, i, false)
+        )
+      ),
+      Promise.all(
+        Array.from({ length: totalReviewers }, (_, i) =>
+          this.getParticipant(roundId, i, true)
+        )
+      ),
+      Promise.allSettled(
+        Array.from({ length: round.applicant_count }, (_, i) =>
+          this.getAssignment(roundId, i)
+        )
+      ),
+    ]);
     const assignments: Assignment[] = assignmentResults.flatMap((result) =>
       result.status === 'fulfilled' ? [result.value] : []
     );
@@ -341,15 +334,16 @@ export class ContractRepository {
         if (assessments.size >= round.screened_pairs_count) break;
       }
     };
-    await loadAssessmentBatches(configuredPairKeys);
-
-    if (assessments.size < round.screened_pairs_count) {
-      const configured = new Set(configuredPairKeys.map(({ a, r }) => `${a}-${r}`));
-      const remainingPairKeys = Array.from({ length: round.applicant_count }, (_, a) =>
-        Array.from({ length: totalReviewers }, (_, r) => ({ a, r }))
-      ).flat().filter(({ a, r }) => !configured.has(`${a}-${r}`));
-      await loadAssessmentBatches(remainingPairKeys);
-    }
+    const loadAssessments = async () => {
+      await loadAssessmentBatches(configuredPairKeys);
+      if (assessments.size < round.screened_pairs_count) {
+        const configured = new Set(configuredPairKeys.map(({ a, r }) => `${a}-${r}`));
+        const remainingPairKeys = Array.from({ length: round.applicant_count }, (_, a) =>
+          Array.from({ length: totalReviewers }, (_, r) => ({ a, r }))
+        ).flat().filter(({ a, r }) => !configured.has(`${a}-${r}`));
+        await loadAssessmentBatches(remainingPairKeys);
+      }
+    };
 
     // Effective panel calculation (available after screening or when freeze)
     const emptyEvents: AuditEventPage = {
@@ -359,10 +353,12 @@ export class ContractRepository {
       page_size: MAX_EVENTS_PAGE_SIZE,
       has_more: false,
     };
-    const [panelResult, eventsResult] = await Promise.allSettled([
+    const optionalReads = Promise.allSettled([
       this.getEffectivePanel(roundId),
       this.getEventPage(roundId, 0, MAX_EVENTS_PAGE_SIZE),
     ]);
+    await loadAssessments();
+    const [panelResult, eventsResult] = await optionalReads;
     const effectivePanel: EffectivePanelResult | null =
       panelResult.status === 'fulfilled' ? panelResult.value : null;
     const recentEvents = eventsResult.status === 'fulfilled' ? eventsResult.value : emptyEvents;

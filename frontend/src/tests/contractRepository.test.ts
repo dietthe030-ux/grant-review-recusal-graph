@@ -320,4 +320,21 @@ describe('Contract Repository (Public Reads & Authentic GenLayer RPC)', () => {
     expect(state.assessments.size).toBe(4);
     expect(pairCalls).toContainEqual([0, 1, 1]);
   });
+
+  it('fails closed when configured pairs exceed the contract cap', async () => {
+    vi.spyOn(rpcCoordinator, 'readContract').mockImplementation(async ({ functionName }) => {
+      if (functionName === 'get_round') {
+        return { round_id: 0, applicants_count: 4, primaries_count: 3, backups_count: 5 };
+      }
+      if (functionName === 'get_participant') return { wallet: '0x1', canonical_orcid: '' };
+      if (functionName === 'get_assignment') {
+        return { primary_reviewer_index: 0, backup_indexes_csv: '1,2,3,4,5' };
+      }
+      return {};
+    });
+
+    await expect(contractRepository.loadFullRoundState(0)).rejects.toThrow(
+      'Configured pair count exceeds contract cap (20)'
+    );
+  });
 });
