@@ -7,7 +7,7 @@ A GenLayer-native workbench that reaches validator consensus on public conflict 
 - Studionet contract: [`0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8`](https://explorer-studio.genlayer.com/address/0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8)
 - Deployment transaction: `0x895e0b704553eea0a84c960bef8e2efaafd8ac25f29d5280f405f14863b052b8`
 - [Exact transaction evidence and live proof matrix](docs/VERIFICATION.md)
-- Live web app: added after the reviewed Vercel deployment
+- Live web app: [grant-review-recusal-graph.vercel.app](https://grant-review-recusal-graph.vercel.app)
 
 ## Trust problem
 
@@ -69,7 +69,7 @@ npm run build
 npm audit --omit=dev
 ```
 
-Current frontend result: 6 test files / 49 tests passed; TypeScript and ESLint passed with zero errors; production build passed; production dependency audit found zero vulnerabilities. Contract verification: 60 direct tests and 1 pinned-runtime test passed; Ruff, GenVM lint, and dependency checks passed. See [the retained live evidence](docs/VERIFICATION.md).
+Current frontend result: 6 test files / 57 tests passed; TypeScript and ESLint passed with zero errors; production build passed; production dependency audit found zero vulnerabilities. Contract verification: 60 direct tests and 1 pinned-runtime test passed; Ruff, GenVM lint, and dependency checks passed. See [the retained live evidence](docs/VERIFICATION.md).
 
 ## Deployment
 

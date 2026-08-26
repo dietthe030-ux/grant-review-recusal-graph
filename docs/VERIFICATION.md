@@ -3,7 +3,8 @@
 Exact source SHA-256: `271b3ab1bf8d9b985459fe976b805476974a8a79820415e42eafba631fdac626`
 
 Contract: `0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8`
-Frontend candidate commit: `17a9203a2efc34d6bf5357e53ce1049e3f22aec0`
+Frontend release code commit: `8b50309bd7b13e7a130151c13656caee0fdb434a`
+Live application: `https://grant-review-recusal-graph.vercel.app`
 
 Deployment transaction: `0x895e0b704553eea0a84c960bef8e2efaafd8ac25f29d5280f405f14863b052b8`
 
@@ -56,8 +57,25 @@ Separate contract: `0xaD60Ce10E0BA00009DC363686bA9946C6a3C8DBf`
 
 - Direct tests: 60 passed.
 - Pinned-runtime tests: 1 passed.
+- Frontend tests: 57 passed across 6 files.
+- Frontend TypeScript, ESLint, and production build: passed.
+- Frontend production dependency audit: 0 vulnerabilities.
 - Ruff: passed.
 - GenVM lint: 3 checks passed.
 - Dependency check: no broken requirements.
+
+## Live Vercel wallet E2E
+
+The browser wallet actor was the independent public address `0x2dea...44ed`; it is not the Studio deployer, upgrader, or round administrator. The exact final frontend starts disconnected after reload and requires an explicit MetaMask, OKX Wallet, or Rabby selection.
+
+| Journey | Transaction / observation | Verified result |
+|---|---|---|
+| Permissionless screen | `0x20a8f7ffa97dd5a94e73217fa1684c320a42cb5dced0215fdaa08c94bfa753ee` | `FINALIZED / MAJORITY_AGREE / SUCCESS`; pair became `NO_PUBLIC_CONFLICT_FOUND / ELIGIBLE`; UI confirmed readback |
+| HOLD finalization rejection | `0x891449fa9da16297f8c533a1c7baa0418e376dd701047d6dcbc04ccca4c0f55b` | `FINALIZED / MAJORITY_AGREE / ERROR`; state remained unfinalized because primary pair `(1,1)` was `EVIDENCE_HOLD` |
+| Unauthorized close rejection | `0xce8a07333c13f51cee6d1616e8fe6902720ae04fb12259301af8ca8c2501d5b2` | `FINALIZED / MAJORITY_AGREE / ERROR`; round #2 remained `ACTIVE`; browser wallet differed from authoritative admin |
+| Evidence retry | `0x60acd4a1e989bb2601fef9c22968652f7bf37dc98f110aac257557da5831edec` | `FINALIZED / MAJORITY_AGREE / SUCCESS`; authoritative attempt advanced `1 → 2`, retaining `EVIDENCE_HOLD / OVERSIZED_RESPONSE`; UI confirmed readback |
+| Reload and public reads | No transaction | Reload began disconnected; round #0 showed authoritative `6/6`; all seven workbench tabs loaded public Studionet data without a wallet |
+
+The earlier transaction `0x2abccf83b281b7f72961a08838ad503a64ba035dcfd2a885ecf58af6776ac207` exposed a frontend polling defect: the chain finalized successfully while the UI remained pending. The final frontend uses the official SDK transaction query, strictly requires status `7`, `MAJORITY_AGREE`, leader `SUCCESS`, and action-specific readback, and never resubmits a persisted hash automatically.
 
 The deployment is Studionet-only. Public ORCID, PubMed, and NIH availability can change; unavailable or unusable evidence fails closed instead of granting clearance.
