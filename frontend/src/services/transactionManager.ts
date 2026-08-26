@@ -44,6 +44,7 @@ export interface GenLayerTxDetails {
       execution_result?: string;
       vote?: string;
       genvm_result?: { execution_result?: string };
+      result?: { status?: string; payload?: unknown };
     }>;
   };
   leaderReceipt?: {
@@ -377,7 +378,11 @@ export class TransactionManager {
     }
 
     if (leaderResult !== 'SUCCESS') {
-      const errDetail = tx.leaderReceipt?.error || 'Leader execution reverted with error';
+      const rollbackPayload = leaderReceipt?.result?.payload;
+      const errDetail =
+        tx.leaderReceipt?.error ||
+        (typeof rollbackPayload === 'string' ? rollbackPayload : undefined) ||
+        'Leader execution reverted with error';
       return {
         isSuccess: false,
         finalityStatus: 7,

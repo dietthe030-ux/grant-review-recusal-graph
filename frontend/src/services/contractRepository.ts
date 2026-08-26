@@ -19,6 +19,7 @@ import {
 import {
   DEPLOYED_CONTRACT_ADDRESS,
   MAX_EVENTS_PAGE_SIZE,
+  MAX_PAIRS_PER_ROUND,
 } from '@/config/constants';
 import { rpcCoordinator } from './rpcCoordinator';
 
@@ -286,65 +287,73 @@ export class ContractRepository {
     const round = await this.getRound(roundId);
 
     // Fetch applicants
-    const applicants: Participant[] = [];
-    for (let i = 0; i < round.applicant_count; i++) {
-      const applicant = await this.getParticipant(roundId, i, false);
-      applicants.push(applicant);
-    }
+    const applicants = await Promise.all(
+      Array.from({ length: round.applicant_count }, (_, i) =>
+        this.getParticipant(roundId, i, false)
+      )
+    );
 
     // Fetch primary + backup reviewers
     const totalReviewers = round.reviewer_count + (round.backup_count || round.backup_reviewer_count || 0);
-    const reviewers: Participant[] = [];
-    for (let i = 0; i < totalReviewers; i++) {
-      const reviewer = await this.getParticipant(roundId, i, true);
-      reviewers.push(reviewer);
-    }
+    const reviewers = await Promise.all(
+      Array.from({ length: totalReviewers }, (_, i) =>
+        this.getParticipant(roundId, i, true)
+      )
+    );
 
     // Fetch assignments
-    const assignments: Assignment[] = [];
-    for (let i = 0; i < round.applicant_count; i++) {
-      try {
-        const assignment = await this.getAssignment(roundId, i);
-        assignments.push(assignment);
-      } catch {
-        // Unassigned
-      }
-    }
+    const assignmentResults = await Promise.allSettled(
+      Array.from({ length: round.applicant_count }, (_, i) =>
+        this.getAssignment(roundId, i)
+      )
+    );
+    const assignments: Assignment[] = assignmentResults.flatMap((result) =>
+      result.status === 'fulfilled' ? [result.value] : []
+    );
 
     // Fetch assessments for all applicant-reviewer pairs
     const assessments = new Map<string, PairAssessment>();
-    for (let a = 0; a < round.applicant_count; a++) {
-      for (let r = 0; r < totalReviewers; r++) {
-        try {
-          const assessment = await this.getPairAssessment(roundId, a, r);
-          assessments.set(`${a}-${r}`, assessment);
-        } catch {
-          // Unscreened pair
+    const pairKeys = Array.from(
+      new Map(
+        assignments.flatMap((assignment) =>
+          [assignment.primary_index, ...assignment.backup_indexes].map((r) => [
+            `${assignment.applicant_index}-${r}`,
+            { a: assignment.applicant_index, r },
+          ] as const)
+        )
+      ).values()
+    );
+    if (pairKeys.length > MAX_PAIRS_PER_ROUND) {
+      throw new Error(`Configured pair count exceeds contract cap (${MAX_PAIRS_PER_ROUND})`);
+    }
+    for (let offset = 0; offset < pairKeys.length; offset += 5) {
+      const batch = pairKeys.slice(offset, offset + 5);
+      const results = await Promise.allSettled(
+        batch.map(({ a, r }) => this.getPairAssessment(roundId, a, r))
+      );
+      results.forEach((result, i) => {
+        if (result.status === 'fulfilled') {
+          const { a, r } = batch[i];
+          assessments.set(`${a}-${r}`, result.value);
         }
-      }
+      });
     }
 
     // Effective panel calculation (available after screening or when freeze)
-    let effectivePanel: EffectivePanelResult | null = null;
-    try {
-      effectivePanel = await this.getEffectivePanel(roundId);
-    } catch {
-      // Panel not ready yet
-    }
-
-    // Audit events
-    let recentEvents: AuditEventPage = {
+    const emptyEvents: AuditEventPage = {
       events: [],
       total: 0,
       page: 0,
       page_size: MAX_EVENTS_PAGE_SIZE,
       has_more: false,
     };
-    try {
-      recentEvents = await this.getEventPage(roundId, 0, MAX_EVENTS_PAGE_SIZE);
-    } catch {
-      // No events
-    }
+    const [panelResult, eventsResult] = await Promise.allSettled([
+      this.getEffectivePanel(roundId),
+      this.getEventPage(roundId, 0, MAX_EVENTS_PAGE_SIZE),
+    ]);
+    const effectivePanel: EffectivePanelResult | null =
+      panelResult.status === 'fulfilled' ? panelResult.value : null;
+    const recentEvents = eventsResult.status === 'fulfilled' ? eventsResult.value : emptyEvents;
 
     return {
       round,

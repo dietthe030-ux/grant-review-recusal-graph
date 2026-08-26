@@ -227,4 +227,62 @@ describe('Contract Repository (Public Reads & Authentic GenLayer RPC)', () => {
 
     await expect(contractRepository.loadFullRoundState(999)).rejects.toThrow('Round 999 not found');
   });
+
+  it('loads only assignment-configured assessment pairs', async () => {
+    const pairCalls: unknown[][] = [];
+    vi.spyOn(rpcCoordinator, 'readContract').mockImplementation(async ({ functionName, args }) => {
+      if (functionName === 'get_round') {
+        return { round_id: 0, applicants_count: 2, primaries_count: 2, backups_count: 1 };
+      }
+      if (functionName === 'get_participant') {
+        return { wallet: '0x1', canonical_orcid: '', is_backup: Boolean(args?.[2]) };
+      }
+      if (functionName === 'get_assignment') {
+        return Number(args?.[1]) === 0
+          ? { primary_reviewer_index: 0, backup_indexes_csv: '1' }
+          : { primary_reviewer_index: 2, backup_indexes_csv: '' };
+      }
+      if (functionName === 'get_pair_assessment') {
+        pairCalls.push(args || []);
+        return { attempt: 1, outcome: 'NO_PUBLIC_CONFLICT_FOUND', consequence: 'ELIGIBLE' };
+      }
+      if (functionName === 'get_effective_panel') return { assignments: [] };
+      if (functionName === 'get_event_page') return { events: [], total_events: 0 };
+      return {};
+    });
+
+    await contractRepository.loadFullRoundState(0);
+
+    expect(pairCalls).toEqual([[0, 0, 0], [0, 0, 1], [0, 1, 2]]);
+  });
+
+  it('limits configured assessment read concurrency to five', async () => {
+    let activePairReads = 0;
+    let maxActivePairReads = 0;
+    vi.spyOn(rpcCoordinator, 'readContract').mockImplementation(async ({ functionName, args }) => {
+      if (functionName === 'get_round') {
+        return { round_id: 0, applicants_count: 2, primaries_count: 2, backups_count: 3 };
+      }
+      if (functionName === 'get_participant') return { wallet: '0x1', canonical_orcid: '' };
+      if (functionName === 'get_assignment') {
+        return Number(args?.[1]) === 0
+          ? { primary_reviewer_index: 0, backup_indexes_csv: '1,2,3' }
+          : { primary_reviewer_index: 1, backup_indexes_csv: '0,2,3' };
+      }
+      if (functionName === 'get_pair_assessment') {
+        activePairReads++;
+        maxActivePairReads = Math.max(maxActivePairReads, activePairReads);
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        activePairReads--;
+        return { attempt: 1, outcome: 'NO_PUBLIC_CONFLICT_FOUND', consequence: 'ELIGIBLE' };
+      }
+      if (functionName === 'get_effective_panel') return { assignments: [] };
+      if (functionName === 'get_event_page') return { events: [], total_events: 0 };
+      return {};
+    });
+
+    await contractRepository.loadFullRoundState(0);
+
+    expect(maxActivePairReads).toBe(5);
+  });
 });

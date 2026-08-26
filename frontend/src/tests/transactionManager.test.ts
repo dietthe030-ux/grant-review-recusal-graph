@@ -134,6 +134,25 @@ describe('Transaction Manager & Intent Journal (Strict GenLayer Consensus)', () 
     expect(verification.error).toContain('reverted');
   });
 
+  it('surfaces the exact Studio rollback payload', () => {
+    const verification = transactionManager.verifyReceipt({
+      status: 7,
+      result_name: 'MAJORITY_AGREE',
+      consensus_data: {
+        leader_receipt: [{
+          execution_result: 'ERROR',
+          result: {
+            status: 'rollback',
+            payload: 'Primary pair (1, 1) remains in EVIDENCE_HOLD',
+          },
+        }],
+      },
+    });
+
+    expect(verification.isSuccess).toBe(false);
+    expect(verification.error).toContain('Primary pair (1, 1) remains in EVIDENCE_HOLD');
+  });
+
   it('fails closed on an unknown finalized consensus result', () => {
     const verification = transactionManager.verifyReceipt({
       status: 7,
