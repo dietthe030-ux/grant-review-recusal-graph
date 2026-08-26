@@ -285,4 +285,39 @@ describe('Contract Repository (Public Reads & Authentic GenLayer RPC)', () => {
 
     expect(maxActivePairReads).toBe(5);
   });
+
+  it('recovers already-screened non-assignment pairs without an unbounded burst', async () => {
+    const pairCalls: unknown[][] = [];
+    vi.spyOn(rpcCoordinator, 'readContract').mockImplementation(async ({ functionName, args }) => {
+      if (functionName === 'get_round') {
+        return {
+          round_id: 0,
+          applicants_count: 2,
+          primaries_count: 2,
+          backups_count: 1,
+          pairs_screened_count: 4,
+        };
+      }
+      if (functionName === 'get_participant') return { wallet: '0x1', canonical_orcid: '' };
+      if (functionName === 'get_assignment') {
+        return Number(args?.[1]) === 0
+          ? { primary_reviewer_index: 0, backup_indexes_csv: '1' }
+          : { primary_reviewer_index: 2, backup_indexes_csv: '' };
+      }
+      if (functionName === 'get_pair_assessment') {
+        pairCalls.push(args || []);
+        const key = `${args?.[1]}-${args?.[2]}`;
+        if (!['0-0', '0-1', '1-2', '1-1'].includes(key)) throw new Error('Unscreened');
+        return { attempt: 1, outcome: 'NO_PUBLIC_CONFLICT_FOUND', consequence: 'ELIGIBLE' };
+      }
+      if (functionName === 'get_effective_panel') return { assignments: [] };
+      if (functionName === 'get_event_page') return { events: [], total_events: 0 };
+      return {};
+    });
+
+    const state = await contractRepository.loadFullRoundState(0);
+
+    expect(state.assessments.size).toBe(4);
+    expect(pairCalls).toContainEqual([0, 1, 1]);
+  });
 });

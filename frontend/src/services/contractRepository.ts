@@ -313,7 +313,7 @@ export class ContractRepository {
 
     // Fetch assessments for all applicant-reviewer pairs
     const assessments = new Map<string, PairAssessment>();
-    const pairKeys = Array.from(
+    const configuredPairKeys = Array.from(
       new Map(
         assignments.flatMap((assignment) =>
           [assignment.primary_index, ...assignment.backup_indexes].map((r) => [
@@ -323,20 +323,32 @@ export class ContractRepository {
         )
       ).values()
     );
-    if (pairKeys.length > MAX_PAIRS_PER_ROUND) {
+    if (configuredPairKeys.length > MAX_PAIRS_PER_ROUND) {
       throw new Error(`Configured pair count exceeds contract cap (${MAX_PAIRS_PER_ROUND})`);
     }
-    for (let offset = 0; offset < pairKeys.length; offset += 5) {
-      const batch = pairKeys.slice(offset, offset + 5);
-      const results = await Promise.allSettled(
-        batch.map(({ a, r }) => this.getPairAssessment(roundId, a, r))
-      );
-      results.forEach((result, i) => {
-        if (result.status === 'fulfilled') {
-          const { a, r } = batch[i];
-          assessments.set(`${a}-${r}`, result.value);
-        }
-      });
+    const loadAssessmentBatches = async (pairKeys: Array<{ a: number; r: number }>) => {
+      for (let offset = 0; offset < pairKeys.length; offset += 5) {
+        const batch = pairKeys.slice(offset, offset + 5);
+        const results = await Promise.allSettled(
+          batch.map(({ a, r }) => this.getPairAssessment(roundId, a, r))
+        );
+        results.forEach((result, i) => {
+          if (result.status === 'fulfilled' && result.value.attempt > 0) {
+            const { a, r } = batch[i];
+            assessments.set(`${a}-${r}`, result.value);
+          }
+        });
+        if (assessments.size >= round.screened_pairs_count) break;
+      }
+    };
+    await loadAssessmentBatches(configuredPairKeys);
+
+    if (assessments.size < round.screened_pairs_count) {
+      const configured = new Set(configuredPairKeys.map(({ a, r }) => `${a}-${r}`));
+      const remainingPairKeys = Array.from({ length: round.applicant_count }, (_, a) =>
+        Array.from({ length: totalReviewers }, (_, r) => ({ a, r }))
+      ).flat().filter(({ a, r }) => !configured.has(`${a}-${r}`));
+      await loadAssessmentBatches(remainingPairKeys);
     }
 
     // Effective panel calculation (available after screening or when freeze)
