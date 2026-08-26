@@ -31,13 +31,20 @@ export interface TxExecutionResult {
 
 export interface GenLayerTxDetails {
   status: number | string; // 7 = FINALIZED
+  statusName?: string;
   resultName?: string; // 'MAJORITY_AGREE' | 'SUCCESS' | 'AGREE'
+  result_name?: string; // Studio response shape
   txExecutionResultName?: string; // 'FINISHED_WITH_RETURN'
   consensus_data?: {
     finality?: string | number;
     votes?: Record<string, unknown>;
     leader_result?: string; // 'SUCCESS' | 'ERROR'
     consensus_result?: string; // 'MAJORITY_AGREE' | 'MAJORITY_DISAGREE'
+    leader_receipt?: Array<{
+      execution_result?: string;
+      vote?: string;
+      genvm_result?: { execution_result?: string };
+    }>;
   };
   leaderReceipt?: {
     execution_result?: string;
@@ -53,6 +60,10 @@ export interface GenLayerTxDetails {
 
 export class TransactionManager {
   private contractAddress: string;
+  private readonly readClient = createClient({
+    chain: studionet,
+    endpoint: STUDIONET_RPC_URL,
+  });
 
   constructor(address: string = DEPLOYED_CONTRACT_ADDRESS) {
     this.contractAddress = address;
@@ -264,12 +275,9 @@ export class TransactionManager {
       }
 
       try {
-        // Query gen_getTransactionByHash via RPC coordinator
-        const tx = await rpcCoordinator.call<GenLayerTxDetails>(
-          'gen_getTransactionByHash',
-          [txHash],
-          { bypassCache: true }
-        );
+        const tx = await this.readClient.getTransaction({
+          hash: txHash as never,
+        }) as GenLayerTxDetails;
 
         if (tx && (tx.status !== undefined && tx.status !== null)) {
           const numStatus = typeof tx.status === 'string' ? parseInt(tx.status, 10) : tx.status;
@@ -284,19 +292,7 @@ export class TransactionManager {
           }
         }
       } catch {
-        // Fallback probe via getTransactionReceipt
-        try {
-          const receipt = await rpcCoordinator.call<GenLayerTxDetails>(
-            'gen_getTransactionReceipt',
-            [txHash],
-            { bypassCache: true }
-          );
-          if (receipt && (receipt.status === 7 || receipt.status === '7' || receipt.status === 'FINALIZED')) {
-            return receipt;
-          }
-        } catch {
-          // Still pending
-        }
+        // Transaction may not be indexed yet; retry without resubmitting.
       }
 
       await new Promise((resolve) => setTimeout(resolve, currentInterval));
@@ -342,7 +338,7 @@ export class TransactionManager {
     }
 
     // Consensus evaluation
-    const consensusResult = tx.resultName || tx.consensus_data?.consensus_result;
+    const consensusResult = tx.resultName || tx.result_name || tx.consensus_data?.consensus_result;
 
     if (!consensusResult) {
       return {
@@ -352,14 +348,7 @@ export class TransactionManager {
       };
     }
 
-    // Reject consensus disagreements
-    if (
-      consensusResult === 'MAJORITY_DISAGREE' ||
-      consensusResult === 'DISAGREE' ||
-      consensusResult === 'DETERMINISTIC_VIOLATION' ||
-      consensusResult === 'TIMEOUT' ||
-      consensusResult === 'NO_MAJORITY'
-    ) {
+    if (consensusResult !== 'MAJORITY_AGREE') {
       return {
         isSuccess: false,
         finalityStatus: 7,
@@ -369,9 +358,12 @@ export class TransactionManager {
     }
 
     // Leader execution result
+    const leaderReceipt = tx.consensus_data?.leader_receipt?.at(-1);
     const leaderResult =
       tx.txExecutionResultName ||
       tx.leaderReceipt?.execution_result ||
+      leaderReceipt?.execution_result ||
+      leaderReceipt?.genvm_result?.execution_result ||
       tx.consensus_data?.leader_result ||
       (typeof tx.leader_execution === 'string' ? tx.leader_execution : tx.leader_execution?.status);
 
@@ -384,11 +376,7 @@ export class TransactionManager {
       };
     }
 
-    if (
-      leaderResult === 'FINISHED_WITH_ERROR' ||
-      leaderResult === 'ERROR' ||
-      leaderResult === 'FAILED'
-    ) {
+    if (leaderResult !== 'SUCCESS') {
       const errDetail = tx.leaderReceipt?.error || 'Leader execution reverted with error';
       return {
         isSuccess: false,

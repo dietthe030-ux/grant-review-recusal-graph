@@ -59,6 +59,25 @@ describe('Transaction Manager & Intent Journal (Strict GenLayer Consensus)', () 
     expect(verification.leaderResult).toBe('SUCCESS');
   });
 
+  it('verifies the exact finalized Studio transaction shape', () => {
+    const verification = transactionManager.verifyReceipt({
+      status: 7,
+      statusName: 'FINALIZED',
+      result_name: 'MAJORITY_AGREE',
+      consensus_data: {
+        votes: { '0xvalidator': 'agree' },
+        leader_receipt: [{ vote: 'agree', execution_result: 'SUCCESS' }],
+      },
+    });
+
+    expect(verification).toMatchObject({
+      isSuccess: true,
+      finalityStatus: 7,
+      consensusResult: 'MAJORITY_AGREE',
+      leaderResult: 'SUCCESS',
+    });
+  });
+
   it('rejects Ethereum-style receipt status 0x1 or status 1 (requires GenLayer status 7)', () => {
     const ethReceipt = {
       status: 1, // Ethereum receipt status 0x1
@@ -113,6 +132,28 @@ describe('Transaction Manager & Intent Journal (Strict GenLayer Consensus)', () 
     const verification = transactionManager.verifyReceipt(errorReceipt);
     expect(verification.isSuccess).toBe(false);
     expect(verification.error).toContain('reverted');
+  });
+
+  it('fails closed on an unknown finalized consensus result', () => {
+    const verification = transactionManager.verifyReceipt({
+      status: 7,
+      result_name: 'UNKNOWN_RESULT',
+      consensus_data: { leader_receipt: [{ execution_result: 'SUCCESS' }] },
+    });
+
+    expect(verification.isSuccess).toBe(false);
+    expect(verification.error).toContain('UNKNOWN_RESULT');
+  });
+
+  it('fails closed when finalized leader execution is not SUCCESS', () => {
+    const verification = transactionManager.verifyReceipt({
+      status: 7,
+      result_name: 'MAJORITY_AGREE',
+      consensus_data: { leader_receipt: [{ execution_result: 'PENDING' }] },
+    });
+
+    expect(verification.isSuccess).toBe(false);
+    expect(verification.leaderResult).toBe('PENDING');
   });
 
   it('performs authoritative action-specific readback for create_round (resolving round ID)', async () => {
@@ -284,14 +325,15 @@ describe('Transaction Manager & Intent Journal (Strict GenLayer Consensus)', () 
     });
     intentJournal.markHashSubmitted(intent.id, '0xdeadbeef123456');
 
-    // Mock RPC getTransaction
-    vi.spyOn(rpcCoordinator, 'call').mockResolvedValue({
+    const readClient = (transactionManager as unknown as {
+      readClient: { getTransaction: () => Promise<unknown> };
+    }).readClient;
+    const transactionProbe = vi.spyOn(readClient, 'getTransaction').mockResolvedValue({
       status: 7,
-      consensus_data: {
-        consensus_result: 'MAJORITY_AGREE',
-        leader_result: 'SUCCESS',
-      },
+      result_name: 'MAJORITY_AGREE',
+      consensus_data: { leader_receipt: [{ execution_result: 'SUCCESS' }] },
     });
+    const legacyRpcProbe = vi.spyOn(rpcCoordinator, 'call');
 
     vi.spyOn(contractRepository, 'getRound').mockResolvedValue({
       id: 0,
@@ -316,5 +358,11 @@ describe('Transaction Manager & Intent Journal (Strict GenLayer Consensus)', () 
     const reconciled = intentJournal.getIntent(intent.id);
     expect(reconciled?.status).toBe('FINALIZED_SUCCESS');
     expect(reconciled?.finalityStatus).toBe(7);
+    expect(transactionProbe).toHaveBeenCalledTimes(1);
+    expect(legacyRpcProbe).not.toHaveBeenCalledWith(
+      'gen_getTransactionByHash',
+      expect.anything(),
+      expect.anything()
+    );
   });
 });
