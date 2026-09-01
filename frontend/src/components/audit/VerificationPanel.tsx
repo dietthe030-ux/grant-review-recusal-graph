@@ -19,25 +19,25 @@ export const VerificationPanel: React.FC = () => {
   const releaseEvidenceMatrix = [
     {
       risk: 'Exact deployment parity',
-      tx: '0x895e0b704553eea0a84c960bef8e2efaafd8ac25f29d5280f405f14863b052b8',
+      tx: '0xc95cab13549c3a3265a96d2a318841d1946eb06c302c54ad1e3d6349c6ad9381',
       result: 'Deployed bytes SHA matches; upgrader matches',
       badge: 'VERIFIED',
     },
     {
-      risk: 'Institutional recusal',
-      tx: '0x6b30ed0ca5ed0569bdbb73d6350703158fa678f0c0864809a9a65836c1772324',
-      result: 'CURRENT_INSTITUTIONAL_OVERLAP / RECUSED',
-      badge: 'RECUSED',
+      risk: 'Configured pair screening',
+      tx: '0xa1f02a3be7f2e0d1c2a4e0f6c4f83e5b0ed5cef97a2e8533ba7a422c523dfb19',
+      result: 'UNRESOLVED / EVIDENCE_HOLD / OVERSIZED_RESPONSE',
+      badge: 'HOLD',
     },
     {
-      risk: 'Corrected 182,384-byte ORCID',
-      tx: '0x8e022920b14cf4d34e28a1ce6205c167c8ff8fad5656539ce45cbca694592fd5',
-      result: 'NO_PUBLIC_CONFLICT_FOUND / ELIGIBLE; no false identity mismatch',
-      badge: 'ELIGIBLE',
+      risk: 'Unconfigured pair rejection',
+      tx: '0x055e71222bbad8d70db147b8abe15a1e0f36df23b6075974fc1cf8b91ac39bf9',
+      result: 'Configured-pair guard rejected reviewer index 1',
+      badge: 'REJECTED',
     },
     {
       risk: 'Freeze round',
-      tx: '0xf88a41060af4a29ab9a090156584b9a0d048cd04eeb6ca7e93870b8bdc7d5d87',
+      tx: '0x45cd58beca10517f8bf9d7a53102d70225106a32b1cf44026dba459c82c6919a',
       result: 'FROZEN; cohort and policy locked',
       badge: 'FROZEN',
     },
@@ -97,7 +97,7 @@ export const VerificationPanel: React.FC = () => {
       <div className="p-3.5 bg-blue-950/40 border border-blue-800/60 rounded-lg text-blue-200 text-xs flex items-center gap-2.5">
         <Info className="w-4 h-4 text-blue-400 shrink-0" />
         <span>
-          <strong>Static Release Evidence:</strong> The proofs below represent static deployment evidence recorded during contract verification and deployment testing. Live round data is loaded on-demand via the workbench tabs.
+          <strong>Static Release Evidence:</strong> The first rows record the corrected deployment and reviewer remediation. Historical rows from the superseded deployment are retained and labeled in the release record. Live round data is loaded on-demand via the workbench tabs.
         </span>
       </div>
 

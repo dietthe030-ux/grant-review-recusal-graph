@@ -227,11 +227,11 @@ describe('Frontend Component Integration', () => {
   it('renders VerificationPanel with exact Studionet deployment metadata and live proof rows', () => {
     render(<VerificationPanel />);
 
-    expect(screen.getByText(/0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8/i)).toBeInTheDocument();
+    expect(screen.getByText(/0x7304a94d1aE82C22fE52DB71b8D698D932AD1Dd9/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/271b3ab1bf8d9b985459fe976b805476974a8a79820415e42eafba631fdac626/)
+      screen.getByText(/2e8f9a6639e148c2cb58a56ec40e38549abb8dd55037b68d13b56005bf49d10/)
     ).toBeInTheDocument();
-    expect(screen.getByText('Institutional recusal')).toBeInTheDocument();
+    expect(screen.getByText('Configured pair screening')).toBeInTheDocument();
     expect(screen.getByText('Deterministic backup promotion')).toBeInTheDocument();
   });
 });

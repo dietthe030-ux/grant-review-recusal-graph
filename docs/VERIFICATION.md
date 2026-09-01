@@ -1,17 +1,30 @@
 # Studionet Verification
 
-Exact source SHA-256: `271b3ab1bf8d9b985459fe976b805476974a8a79820415e42eafba631fdac626`
+Exact source SHA-256: `2e8f9a6639e148c2cb58a56ec40e38549abb8dd55037b68d13b56005bf49d10`
 
-Contract: `0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8`
-Frontend release code commit: `8b50309bd7b13e7a130151c13656caee0fdb434a`
+Contract: `0x7304a94d1aE82C22fE52DB71b8D698D932AD1Dd9`
+Frontend release code commit: `0ab04b2dfba335a273c84e88fbcc96e79b51e028`
 Live application: `https://grant-review-recusal-graph.vercel.app`
 
-Deployment transaction: `0x895e0b704553eea0a84c960bef8e2efaafd8ac25f29d5280f405f14863b052b8`
+Deployment transaction: `0xc95cab13549c3a3265a96d2a318841d1946eb06c302c54ad1e3d6349c6ad9381`
+
+## Reviewer correction evidence
+
+The prior deployment is superseded by the exact source revision above. The corrected deployment binds screening to each applicant's configured primary or backup reviewer set and validator equivalence checks cover every persisted decision-supporting evidence field.
+
+| Correction criterion | Transaction | Authoritative result |
+|---|---|---|
+| Corrected deployment | `0xc95cab13549c3a3265a96d2a318841d1946eb06c302c54ad1e3d6349c6ad9381` | `FINALIZED`; contract `0x7304a94d1aE82C22fE52DB71b8D698D932AD1Dd9`; source SHA matches |
+| Configured pair screening | `0xa1f02a3be7f2e0d1c2a4e0f6c4f83e5b0ed5cef97a2e8533ba7a422c523dfb19` | `FINALIZED / SUCCESS`; configured pair `(0,0)` recorded `UNRESOLVED / EVIDENCE_HOLD / OVERSIZED_RESPONSE` |
+| Unconfigured pair rejection | `0x055e71222bbad8d70db147b8abe15a1e0f36df23b6075974fc1cf8b91ac39bf9` | `FINALIZED / ERROR`; `[rollback] Cannot screen pair: reviewer is not configured for applicant` |
+| Validator evidence binding | `0xa1f02a3be7f2e0d1c2a4e0f6c4f83e5b0ed5cef97a2e8533ba7a422c523dfb19` | Consensus validators agreed on the complete persisted evidence tuple |
 
 Every success below was read back after `FINALIZED`, `MAJORITY_AGREE`, and leader `SUCCESS`.
 Expected rejection rows were `FINALIZED` with leader `ERROR`, followed by an unchanged authoritative readback.
 
-## Live proof matrix
+## Prior superseded deployment proof matrix
+
+The following rows are retained historical evidence from the superseded deployment and are not claimed as proofs against the corrected address above.
 
 | Risk / criterion | Transaction | Authoritative result |
 |---|---|---|
@@ -64,7 +77,7 @@ Separate contract: `0xaD60Ce10E0BA00009DC363686bA9946C6a3C8DBf`
 - GenVM lint: 3 checks passed.
 - Dependency check: no broken requirements.
 
-## Live Vercel wallet E2E
+## Prior superseded Vercel wallet E2E
 
 The browser wallet actor was the independent public address `0x2dea...44ed`; it is not the Studio deployer, upgrader, or round administrator. The exact final frontend starts disconnected after reload and requires an explicit MetaMask, OKX Wallet, or Rabby selection.
 

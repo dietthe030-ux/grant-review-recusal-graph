@@ -4,8 +4,8 @@ A GenLayer-native workbench that reaches validator consensus on public conflict 
 
 ## Verified links
 
-- Studionet contract: [`0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8`](https://explorer-studio.genlayer.com/address/0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8)
-- Deployment transaction: `0x895e0b704553eea0a84c960bef8e2efaafd8ac25f29d5280f405f14863b052b8`
+- Studionet contract: [`0x7304a94d1aE82C22fE52DB71b8D698D932AD1Dd9`](https://explorer-studio.genlayer.com/address/0x7304a94d1aE82C22fE52DB71b8D698D932AD1Dd9)
+- Deployment transaction: `0xc95cab13549c3a3265a96d2a318841d1946eb06c302c54ad1e3d6349c6ad9381`
 - [Exact transaction evidence and live proof matrix](docs/VERIFICATION.md)
 - Live web app: [grant-review-recusal-graph.vercel.app](https://grant-review-recusal-graph.vercel.app)
 
@@ -69,13 +69,13 @@ npm run build
 npm audit --omit=dev
 ```
 
-Current frontend result: 6 test files / 57 tests passed; TypeScript and ESLint passed with zero errors; production build passed; production dependency audit found zero vulnerabilities. Contract verification: 60 direct tests and 1 pinned-runtime test passed; Ruff, GenVM lint, and dependency checks passed. See [the retained live evidence](docs/VERIFICATION.md).
+Current frontend result: 6 test files / 57 tests passed; TypeScript and ESLint passed with zero errors; production build passed; production dependency audit found zero vulnerabilities. Contract verification: 61 direct tests and 1 pinned-runtime test passed; Ruff, GenVM lint, and dependency checks passed. See [the retained live evidence](docs/VERIFICATION.md).
 
 ## Deployment
 
 - Network: GenLayer Studionet (`61999` / `0xf22f`)
 - RPC: `https://studio.genlayer.com/api`
-- Contract source SHA-256: `271b3ab1bf8d9b985459fe976b805476974a8a79820415e42eafba631fdac626`
+- Contract source SHA-256: `2e8f9a6639e148c2cb58a56ec40e38549abb8dd55037b68d13b56005bf49d10`
 - Upgrader: `0x34b92E6553eaCA11A00A9d86d75d8a7881779D78`
 
 The [deployment manifest](deployments/studionet.json) binds constructor, source, transaction, and address. The contract is upgradable through its authorized Root Slot path; reset and authority-loss boundaries plus the separate upgrade rehearsal are documented in [Recovery](docs/RECOVERY.md).

@@ -2,18 +2,30 @@
   "network": "Studionet",
   "chain_id": 61999,
   "rpc": "https://studio.genlayer.com/api",
-  "explorer": "https://explorer-studio.genlayer.com/address/0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8",
-  "contract_address": "0x1EAE8A65b33d4277cE0Aa966e7CA9088b18531C8",
-  "deployment_transaction": "0x895e0b704553eea0a84c960bef8e2efaafd8ac25f29d5280f405f14863b052b8",
+  "explorer": "https://explorer-studio.genlayer.com/address/0x7304a94d1aE82C22fE52DB71b8D698D932AD1Dd9",
+  "contract_address": "0x7304a94d1aE82C22fE52DB71b8D698D932AD1Dd9",
+  "deployment_transaction": "0xc95cab13549c3a3265a96d2a318841d1946eb06c302c54ad1e3d6349c6ad9381",
   "source_file": "contracts/grant_review_recusal_graph.py",
-  "source_sha256": "271b3ab1bf8d9b985459fe976b805476974a8a79820415e42eafba631fdac626",
-  "git_commit": "1759311",
+  "source_sha256": "2e8f9a6639e148c2cb58a56ec40e38549abb8dd55037b68d13b56005bf49d10",
+  "git_commit": "2b0b557",
   "constructor": {
     "upgrader": "0x34b92E6553eaCA11A00A9d86d75d8a7881779D78"
   },
   "classification": "UPGRADABLE",
   "linked_contracts": [],
-  "configuration_transactions": [],
+  "configuration_transactions": [
+    "0xfbf8f68318d76d240fabc5f70e6ca0fdd81a7cecee623e351d4630f2729cce3b",
+    "0xe2d812ce55f6e0df0f4c8bf5d7dfed0fa09d55016c448af69c142db35710f833",
+    "0x6b336a35f158dfacb1dd7ba43d55b0fa860f37f90608f0367ddc52ba84aca47",
+    "0x89bd6345f644604c102f96505cccf3a14edcca5982c260468561dac06ab5beec",
+    "0x13492cf0e1baba0b9b8f0983482f40111441989d7382a84983a7c3b24fc210ee",
+    "0x45cd58beca10517f8bf9d7a53102d70225106a32b1cf44026dba459c82c6919a"
+  ],
+  "correction_runtime_evidence": {
+    "configured_pair_screen": "0xa1f02a3be7f2e0d1c2a4e0f6c4f83e5b0ed5cef97a2e8533ba7a422c523dfb19",
+    "unconfigured_pair_rejection": "0x055e71222bbad8d70db147b8abe15a1e0f36df23b6075974fc1cf8b91ac39bf9",
+    "negative_duplicate_freeze": "0xe43a2c23a7b526d4499db1705d5ca70a4c888016fb238e3db75d69108fddf082"
+  },
   "upgrade_rehearsal": {
     "separate_contract": "0xaD60Ce10E0BA00009DC363686bA9946C6a3C8DBf",
     "deployment_transaction": "0x9792f0f489fb0eee763a4e496dcd905a718f8f10bb96fdbbf08a285a4f1c75a4",
