@@ -67,6 +67,19 @@ def test_unauthorized_activation(contract, gl):
         contract.activate_panel(r_id)
 
 
+def test_screen_pair_rejects_unconfigured_reviewer(contract, gl):
+    gl.message.sender_address = make_test_address(0x1000)
+    r_id = contract.create_round("nonce-configured-pair", "Configured Pair", 2, 2000000000, 2000001000)
+    contract.add_applicant(r_id, make_test_address(0x2000), "0000-0002-1825-0097", "Stanford")
+    contract.add_reviewer(r_id, make_test_address(0x3000), "0000-0001-5109-3700", "MIT", False)
+    contract.add_reviewer(r_id, make_test_address(0x3001), "0000-0002-1694-233X", "Yale", False)
+    contract.set_assignment(r_id, 0, 0, "")
+    contract.freeze_round(r_id)
+
+    with pytest.raises(UserError, match="reviewer is not configured"):
+        contract.screen_pair(r_id, 0, 1)
+
+
 def test_status_404_vs_599_policy_distinction(contract, gl):
     admin = make_test_address(0x1000)
     gl.message.sender_address = admin

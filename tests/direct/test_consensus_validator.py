@@ -94,7 +94,7 @@ def test_validator_rejects_false_eligible_claim():
     assert res is False
 
 
-def test_validator_accepts_recusal_with_validator_local_evidence_variance():
+def test_validator_rejects_tampered_decision_supporting_evidence():
     app_orcid = "0000-0002-1825-0097"
     rev_orcid = "0000-0001-5109-3700"
     _setup_clean_sources(app_orcid, rev_orcid)
@@ -111,7 +111,7 @@ def test_validator_accepts_recusal_with_validator_local_evidence_variance():
     leader["explanation"] = "Leader-local verified recusal evidence"
     leader["fingerprint"] = _compute_fingerprint(leader, app_orcid, rev_orcid)
 
-    assert _validator_screen(MockReturn(leader), app_orcid, rev_orcid, "Stanford", "MIT", 0, 0, now_ts) is True
+    assert _validator_screen(MockReturn(leader), app_orcid, rev_orcid, "Stanford", "MIT", 0, 0, now_ts) is False
 
 
 def test_validator_rejects_cross_outcome_substitution_with_same_consequence():

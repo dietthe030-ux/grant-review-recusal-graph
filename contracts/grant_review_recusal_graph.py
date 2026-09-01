@@ -969,13 +969,20 @@ def _validator_screen(
         return False
     if data.get("rev_orcid") != rev_orcid:
         return False
-    if data.get("outcome") != expected["outcome"]:
-        return False
-    if data.get("consequence") != expected["consequence"]:
+    protected_fields = (
+        "source_statuses",
+        "relationship_band",
+        "shared_pmids",
+        "shared_projects",
+        "temporal_band",
+        "outcome",
+        "consequence",
+        "reason_code",
+        "observed_at",
+    )
+    if any(data.get(field) != expected.get(field) for field in protected_fields):
         return False
     if outcome_consequences.get(data.get("outcome")) != data.get("consequence"):
-        return False
-    if data.get("observed_at") != now_ts:
         return False
     if data.get("fingerprint") != _compute_fingerprint(data, app_orcid, rev_orcid):
         return False
@@ -1380,6 +1387,17 @@ class GrantReviewRecusalGraph(gl.Contract):
         total_revs = int(r.primaries_count) + int(r.backups_count)
         if int(reviewer_index) >= total_revs:
             raise gl.vm.UserError("Reviewer index out of bounds")
+
+        assignment_key = f"{int(round_id)}:{int(applicant_index)}"
+        if assignment_key not in self.assignments:
+            raise gl.vm.UserError("Cannot screen pair: applicant has no assignment")
+        assignment = self.assignments[assignment_key]
+        configured_reviewers = [int(assignment.primary_reviewer_index)]
+        configured_reviewers.extend(
+            int(value) for value in str(assignment.backup_indexes_csv).split(",") if value.strip()
+        )
+        if int(reviewer_index) not in configured_reviewers:
+            raise gl.vm.UserError("Cannot screen pair: reviewer is not configured for applicant")
 
         pair_key = f"{int(round_id)}:{int(applicant_index)}:{int(reviewer_index)}"
         prev_attempt = 0
