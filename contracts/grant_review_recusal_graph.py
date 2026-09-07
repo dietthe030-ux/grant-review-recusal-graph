@@ -979,6 +979,7 @@ def _validator_screen(
         "consequence",
         "reason_code",
         "observed_at",
+        "explanation",
     )
     if any(data.get(field) != expected.get(field) for field in protected_fields):
         return False
@@ -1404,6 +1405,8 @@ class GrantReviewRecusalGraph(gl.Contract):
         if pair_key in self.pair_assessments:
             prev = self.pair_assessments[pair_key]
             prev_attempt = int(prev.attempt)
+            if gl.message.sender_address != r.admin:
+                raise gl.vm.UserError("Unauthorized: only round admin can retry evidence-hold screening")
             if prev_attempt >= MAX_ATTEMPTS:
                 raise gl.vm.UserError(f"Max screening attempts ({MAX_ATTEMPTS}) reached for this pair")
             if prev.consequence != "EVIDENCE_HOLD":

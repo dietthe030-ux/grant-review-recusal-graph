@@ -80,6 +80,45 @@ def test_screen_pair_rejects_unconfigured_reviewer(contract, gl):
         contract.screen_pair(r_id, 0, 1)
 
 
+def test_third_party_cannot_consume_evidence_hold_retries(contract, gl):
+    admin = make_test_address(0x1000)
+    attacker = make_test_address(0x1337)
+    app_orcid = "0000-0002-1825-0097"
+    rev_orcid = "0000-0001-5109-3700"
+    gl.message.sender_address = admin
+
+    r_id = contract.create_round("nonce-retry-auth", "Retry Authorization", 2, 2000000000, 2000001000)
+    contract.add_applicant(r_id, make_test_address(0x2000), app_orcid, "Stanford")
+    contract.add_reviewer(r_id, make_test_address(0x3000), rev_orcid, "MIT", False)
+    contract.add_reviewer(r_id, make_test_address(0x3001), "0000-0002-1694-233X", "Yale", False)
+    contract.set_assignment(r_id, 0, 0, "")
+    contract.freeze_round(r_id)
+
+    web_manager.register("GET", f"pub.orcid.org/v3.0/{app_orcid}/record", MockWebResponse(429, b"Rate limited"))
+    web_manager.register("GET", f"pub.orcid.org/v3.0/{rev_orcid}/record", MockWebResponse(429, b"Rate limited"))
+    web_manager.register("GET", "esearch.fcgi", MockWebResponse(429, b"Rate limited"))
+    web_manager.register("POST", "reporter.nih.gov/v2/projects/search", MockWebResponse(429, b"Rate limited"))
+
+    # Initial screening remains permissionless.
+    gl.message.sender_address = attacker
+    contract.screen_pair(r_id, 0, 0)
+    before = contract.get_pair_assessment(r_id, 0, 0)
+    assert before["attempt"] == 1
+    assert before["consequence"] == "EVIDENCE_HOLD"
+
+    # A third party cannot consume either remaining retry or mutate its receipt.
+    for _ in range(3):
+        with pytest.raises(UserError, match="only round admin can retry"):
+            contract.screen_pair(r_id, 0, 0)
+    after = contract.get_pair_assessment(r_id, 0, 0)
+    assert after == before
+
+    # The round admin retains bounded recovery authority.
+    gl.message.sender_address = admin
+    contract.screen_pair(r_id, 0, 0)
+    assert contract.get_pair_assessment(r_id, 0, 0)["attempt"] == 2
+
+
 def test_status_404_vs_599_policy_distinction(contract, gl):
     admin = make_test_address(0x1000)
     gl.message.sender_address = admin

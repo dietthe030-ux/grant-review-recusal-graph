@@ -14,6 +14,7 @@ import {
   truncateAddress,
 } from '@/utils/formatters';
 import { Button } from '@/components/common/Button';
+import { useWallet } from '@/context/WalletContext';
 import {
   Search,
   CheckCircle2,
@@ -40,7 +41,9 @@ export const ScreeningPanel: React.FC<ScreeningPanelProps> = ({
   onFinalizeScreening,
   isTransacting,
 }) => {
+  const { walletState } = useWallet();
   const [activeTabFilter, setActiveTabFilter] = useState<string>('ALL');
+  const isRoundAdmin = walletState.account?.toLowerCase() === round.admin.toLowerCase();
 
   const totalPairs = applicants.length * reviewers.length;
   const screenedCount = assessments.size;
@@ -191,7 +194,7 @@ export const ScreeningPanel: React.FC<ScreeningPanelProps> = ({
                       <span>Observed: {formatTimestamp(assessment.observed_at)}</span>
                     </div>
 
-                    {assessment.outcome === 'UNRESOLVED' && assessment.attempt < 3 && (
+                    {assessment.outcome === 'UNRESOLVED' && assessment.attempt < 3 && isRoundAdmin && (
                       <Button
                         variant="secondary"
                         size="sm"
@@ -202,6 +205,11 @@ export const ScreeningPanel: React.FC<ScreeningPanelProps> = ({
                       >
                         Retry Screening (Attempt {assessment.attempt + 1}/3)
                       </Button>
+                    )}
+                    {assessment.outcome === 'UNRESOLVED' && assessment.attempt < 3 && !isRoundAdmin && (
+                      <p className="pt-1 text-center font-sans text-[10px] text-slate-400">
+                        Only the round administrator can authorize a bounded evidence retry.
+                      </p>
                     )}
                   </div>
                 ) : (

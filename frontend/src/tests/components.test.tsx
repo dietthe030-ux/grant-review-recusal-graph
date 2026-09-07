@@ -206,22 +206,52 @@ describe('Frontend Component Integration', () => {
   it('renders EdgeInspector with 4 official cross-source statuses', () => {
     const assessment = mockAssessments.get('0-0')!;
     render(
-      <EdgeInspector
-        applicant={mockApplicants[0]}
-        reviewer={mockReviewers[0]}
-        assessment={assessment}
-        assignment={mockAssignments[0]}
-        round={mockRound}
-        onScreenPair={vi.fn()}
-        isTransacting={false}
-        onClose={vi.fn()}
-      />
+      <WalletProvider>
+        <EdgeInspector
+          applicant={mockApplicants[0]}
+          reviewer={mockReviewers[0]}
+          assessment={assessment}
+          assignment={mockAssignments[0]}
+          round={mockRound}
+          onScreenPair={vi.fn()}
+          isTransacting={false}
+          onClose={vi.fn()}
+        />
+      </WalletProvider>
     );
 
     expect(screen.getByText('CURRENT_INSTITUTIONAL_OVERLAP')).toBeInTheDocument();
     expect(screen.getAllByText('HTTP 200').length).toBe(4);
     expect(screen.getByText('NCBI PubMed:')).toBeInTheDocument();
     expect(screen.getByText('NIH RePORTER:')).toBeInTheDocument();
+  });
+
+  it('does not offer an evidence-hold retry to a non-admin wallet', () => {
+    const unresolved: PairAssessment = {
+      ...mockAssessments.get('0-0')!,
+      outcome: 'UNRESOLVED',
+      consequence: 'EVIDENCE_HOLD',
+      reason_code: 'SOURCE_UNAVAILABLE_OR_INCOMPLETE',
+      attempt: 1,
+      retry_available: true,
+    };
+    render(
+      <WalletProvider>
+        <EdgeInspector
+          applicant={mockApplicants[0]}
+          reviewer={mockReviewers[0]}
+          assessment={unresolved}
+          assignment={mockAssignments[0]}
+          round={{ ...mockRound, lifecycle: 'HOLD' }}
+          onScreenPair={vi.fn()}
+          isTransacting={false}
+          onClose={vi.fn()}
+        />
+      </WalletProvider>
+    );
+
+    expect(screen.queryByRole('button', { name: /Retry Screening/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/Only the round administrator can authorize/i)).toBeInTheDocument();
   });
 
   it('renders VerificationPanel with exact Studionet deployment metadata and live proof rows', () => {

@@ -114,6 +114,19 @@ def test_validator_rejects_tampered_decision_supporting_evidence():
     assert _validator_screen(MockReturn(leader), app_orcid, rev_orcid, "Stanford", "MIT", 0, 0, now_ts) is False
 
 
+def test_validator_rejects_tampered_persisted_explanation():
+    app_orcid = "0000-0002-1825-0097"
+    rev_orcid = "0000-0001-5109-3700"
+    _setup_clean_sources(app_orcid, rev_orcid)
+
+    now_ts = 1771977600
+    leader = _derive_screening_result(app_orcid, rev_orcid, "Stanford", "MIT", 0, 0, now_ts)
+    leader["explanation"] = "Leader-controlled explanation not derived from the evidence"
+    leader["fingerprint"] = _compute_fingerprint(leader, app_orcid, rev_orcid)
+
+    assert _validator_screen(MockReturn(leader), app_orcid, rev_orcid, "Stanford", "MIT", 0, 0, now_ts) is False
+
+
 def test_validator_rejects_cross_outcome_substitution_with_same_consequence():
     app_orcid = "0000-0002-1825-0097"
     rev_orcid = "0000-0001-5109-3700"

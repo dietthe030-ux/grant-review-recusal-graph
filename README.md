@@ -21,7 +21,7 @@ The central decision compares live ORCID identities and employment, PubMed co-au
 
 1. The **administrator** creates a round with a client nonce, quorum, and deadlines; registers applicants, primaries, and backups; sets assignments; and freezes the cohort.
 2. **Applicants and reviewers** acknowledge their registered identity. Reviewers may decline before activation.
-3. A **permissionless assessor** requests screening for each required applicant-reviewer pair.
+3. A **permissionless assessor** requests the first screening for each required applicant-reviewer pair. If public evidence remains unresolved, only the round administrator can authorize a bounded retry, preventing third parties from exhausting the retry allowance.
 4. Validators compare the public evidence and commit one of five policy outcomes. Finalization reaches `READY` only when requirements pass; unresolved or manual-review evidence produces `HOLD`.
 5. Activation keeps an eligible primary or deterministically promotes the first eligible backup while enforcing quorum. The administrator later closes the active round.
 6. An **auditor or public observer** reads rounds, pair evidence, effective panels, and append-only events without a wallet.
@@ -39,7 +39,7 @@ Actors are the round administrator, registered applicants/reviewers, permissionl
 
 Key writes are `create_round`, `add_applicant`, `add_reviewer`, `set_assignment`, `acknowledge_identity`, `decline_assignment`, `freeze_round`, `screen_pair`, `finalize_screening`, `activate_panel`, `close_round`, and `cancel_round`. Public views expose rounds, participants, assignments, pair assessments, effective panels, events, nonce resolution, and the upgrader.
 
-Each validator receives bounded, delimiter-isolated evidence. Deterministic validation rejects prompt-injected output, identity mismatch, unusable sources, invalid consequence mappings, and non-canonical results. Validators compare the normalized policy tuple and fingerprint; disagreement cannot mutate authoritative state. The contract transfers no funds: its value consequence is reviewer eligibility, recusal, hold, deterministic backup promotion, and panel activation.
+Each validator independently refetches bounded, delimiter-isolated evidence and re-derives the canonical decision and explanation. Deterministic validation rejects prompt-injected output, identity mismatch, unusable sources, invalid consequence mappings, non-canonical results, and any leader-controlled explanation that differs from the independently derived text. Disagreement cannot mutate authoritative state. The contract transfers no funds: its value consequence is reviewer eligibility, recusal, hold, deterministic backup promotion, and panel activation.
 
 ## Transaction lifecycle
 
@@ -69,7 +69,7 @@ npm run build
 npm audit --omit=dev
 ```
 
-Current frontend result: 6 test files / 57 tests passed; TypeScript and ESLint passed with zero errors; production build passed; production dependency audit found zero vulnerabilities. Contract verification: 61 direct tests and 1 pinned-runtime test passed; Ruff, GenVM lint, and dependency checks passed. See [the retained live evidence](docs/VERIFICATION.md).
+Current frontend result: 6 test files / 58 tests passed; TypeScript and ESLint passed with zero errors; production build passed; production dependency audit found zero vulnerabilities. Contract verification: 63 direct tests and 1 pinned-runtime test passed; Ruff, GenVM lint, and dependency checks passed. See [the retained live evidence](docs/VERIFICATION.md).
 
 ## Deployment
 

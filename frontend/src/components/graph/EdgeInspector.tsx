@@ -19,6 +19,7 @@ import {
   truncateHash,
 } from '@/utils/formatters';
 import { Button } from '@/components/common/Button';
+import { useWallet } from '@/context/WalletContext';
 import {
   X,
   ExternalLink,
@@ -51,6 +52,7 @@ export const EdgeInspector: React.FC<EdgeInspectorProps> = ({
   isTransacting,
   onClose,
 }) => {
+  const { walletState } = useWallet();
   if (!applicant || !reviewer) return null;
 
   const outcome = assessment ? assessment.outcome : 'UNSCREENED';
@@ -65,7 +67,8 @@ export const EdgeInspector: React.FC<EdgeInspectorProps> = ({
     Boolean(assessment) &&
     assessment!.outcome === 'UNRESOLVED' &&
     assessment!.attempt < 3 &&
-    isScreenable;
+    isScreenable &&
+    walletState.account?.toLowerCase() === round.admin.toLowerCase();
 
   return (
     <div className="w-full bg-workbench-surface border border-workbench-border rounded-lg shadow-panel overflow-hidden text-slate-100 flex flex-col">
@@ -330,6 +333,11 @@ export const EdgeInspector: React.FC<EdgeInspectorProps> = ({
             >
               Retry Screening (Attempt {assessment!.attempt + 1}/3)
             </Button>
+          )}
+          {assessment?.outcome === 'UNRESOLVED' && assessment.attempt < 3 && !canRetry && (
+            <p className="text-[10px] text-slate-400 text-center">
+              Only the round administrator can authorize a bounded evidence retry.
+            </p>
           )}
         </div>
       </div>
