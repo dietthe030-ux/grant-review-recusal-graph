@@ -2,7 +2,7 @@
 
 ## Applicability
 
-RPC_BUDGET_REVISION: 3a288e128fd79f51396ec02d7cf2a54df5db1621
+RPC_BUDGET_REVISION: 1ccef1d9b282ccac67657f0c15d4c8ebe86eea91
 OFFICIAL_DOCS_CHECKED: 2026-09-07 current GenLayer governance-routed Studio and frontend references
 STUDIO_SCOPE: APPLICABLE
 FRONTEND_SCOPE: APPLICABLE
@@ -13,7 +13,7 @@ STUDIO_CAPABILITY_PROBE_STATUS: COMPLETE
 STUDIO_MEASUREMENT_MODE: OBSERVABLE_ACTION_LEDGER
 STUDIO_MEASUREMENT_TIMING: PRE_E2E
 STUDIO_CAPABILITY_PROBE_AT: 2026-09-07T09:06:15.8158649Z
-STUDIO_FIRST_ACTION_AT: NOT_STARTED
+STUDIO_FIRST_ACTION_AT: 2026-09-07T09:06:15.8158649Z
 STUDIO_E2E_STARTED_AT: NOT_STARTED
 STUDIO_CAPABILITY_TOOL_OR_API: Codex in-app Browser tool inventory and action receipts
 STUDIO_CAPABILITY_CHECK: Checked available Browser control surface before opening Studio; individual physical request events and performance entries are not exposed, while every navigation, interaction, poll, receipt read, readback and transaction tool action is observable.
@@ -40,10 +40,10 @@ At most three new transactions are planned: one upgrade, one unauthorized reject
 
 ## STUDIO RPC BUDGET EVIDENCE
 
-STUDIO_EVIDENCE_STATUS: NOT_STARTED
-STUDIO_ACTION_LEDGER_STATUS: NOT_STARTED
+STUDIO_EVIDENCE_STATUS: PRE_DEPLOY_READ_ONLY_PARTIAL
+STUDIO_ACTION_LEDGER_STATUS: ACTIVE
 STUDIO_PHYSICAL_REQUESTS: NOT_APPLICABLE
-STUDIO_ACTIONS: NOT_STARTED
+STUDIO_ACTIONS: account selection; exact candidate source import; source-marker verification; validator availability check
 STUDIO_TRANSACTIONS: NOT_STARTED
 STUDIO_TRANSACTION_HASHES: NOT_STARTED
 STUDIO_STATUS_POLL_ATTEMPTS: NOT_STARTED
@@ -53,7 +53,7 @@ STUDIO_RETRIES: NOT_STARTED
 STUDIO_DUPLICATE_TRANSACTIONS: NOT_STARTED
 STUDIO_MATRIX_VARIANCE: NOT_STARTED
 
-No Studio action has occurred after this pre-E2E probe. Evidence fields will be populated from the locked observable action ledger after PRE_DEPLOY approval and live execution.
+Read-only PRE_DEPLOY actions selected account `0x34b92E6553eaCA11A00A9d86d75d8a7881779D78`, imported candidate SHA-256 `6F0293D6B1AFF02B5726FE7A03DD18AE407238B9D07E4670CDF5A64A5B710E4E`, and found the retry-authorization marker at Studio editor line 1409. Studio then reported `Validators: 0`, so it did not expose the parsed method panel; no transaction, signature, replay, or Studio E2E occurred. Transaction evidence fields remain pending until PRE_DEPLOY approval and validator availability.
 
 ## FRONTEND RPC BUDGET MATRIX
 FRONTEND_MATRIX_STATUS: COMPLETE
