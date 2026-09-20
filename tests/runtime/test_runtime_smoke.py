@@ -1,20 +1,23 @@
 import json
+import sys
 from pathlib import Path
 
 import pytest
+from gltest.direct import wasi_mock
 from gltest.direct.loader import deploy_contract
 from gltest.direct.sdk_loader import setup_sdk_paths
 from gltest.direct.vm import VMContext
 
 CONTRACT_PATH = Path(__file__).resolve().parents[2] / "contracts" / "grant_review_recusal_graph.py"
+sys.modules["_genlayer_wasi"] = wasi_mock
 setup_sdk_paths(CONTRACT_PATH)
 
-from genlayer import gl
-from genlayer.py.types import Address
+import genlayer as gl
+from genlayer import Address
 
 
 def _address(value: int) -> Address:
-    return Address(value.to_bytes(20, "big"))
+    return Address("0x" + value.to_bytes(20, "big").hex())
 
 
 def test_pinned_runtime_constructor_and_deterministic_lifecycle() -> None:
@@ -90,13 +93,15 @@ def test_pinned_runtime_constructor_and_deterministic_lifecycle() -> None:
         vm.mock_llm(
             ".*",
             json.dumps(
-                {
-                    "outcome": "NO_PUBLIC_CONFLICT_FOUND",
-                    "consequence": "ELIGIBLE",
-                    "reason_code": "NO_CONFLICT_DETECTED",
-                    "relationship_band": "NONE",
-                    "temporal_band": "NONE",
-                }
+                json.dumps(
+                    {
+                        "outcome": "NO_PUBLIC_CONFLICT_FOUND",
+                        "consequence": "ELIGIBLE",
+                        "reason_code": "NO_CONFLICT_DETECTED",
+                        "relationship_band": "NONE",
+                        "temporal_band": "NONE",
+                    }
+                )
             ),
         )
         assert gl.nondet.exec_prompt("probe", response_format="json")["outcome"] == "NO_PUBLIC_CONFLICT_FOUND"

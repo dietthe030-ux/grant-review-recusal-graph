@@ -201,6 +201,8 @@ class MockVM:
                 raise UserError("Validator rejected leader screening output")
         return leader_output
 
+    run_nondet_default = run_nondet_unsafe
+
 
 class MockContract:
     def __new__(cls, *args, **kwargs):
@@ -300,7 +302,27 @@ genlayer_mod.u256 = MockU256
 genlayer_mod.TreeMap = MockTreeMap
 genlayer_mod.DynArray = MockDynArray
 genlayer_mod.allow_storage = allow_storage
+genlayer_mod.storage = types.SimpleNamespace(
+    Root=MockRoot,
+    TreeMap=MockTreeMap,
+    allow=allow_storage,
+)
+genlayer_mod.contract = types.SimpleNamespace(Contract=MockContract)
+genlayer_mod.__all__ = [
+    "Address",
+    "u8",
+    "u32",
+    "u64",
+    "u256",
+    "TreeMap",
+    "DynArray",
+    "allow_storage",
+]
 genlayer_mod.gl = MockGL()
+genlayer_mod.message = genlayer_mod.gl.message
+genlayer_mod.nondet = genlayer_mod.gl.nondet
+genlayer_mod.vm = genlayer_mod.gl.vm
+genlayer_mod.public = genlayer_mod.gl.public
 
 sys.modules["genlayer"] = genlayer_mod
 
