@@ -5,7 +5,7 @@ Exact source SHA-256: `7231400CE1046CBAF2A080DB4CD62197AEAC1F15152EFDE2C99608A52
 Contract: `0x76cdD2006178858b1c48254B1d09a78c509bC4E7`
 Source revision: `7b0a30486225cde9b160834948a687412db799b9`
 Network: `studio-dev` / chain `61997` / `https://studio-dev.genlayer.com/api`
-Live application: pending Vercel redeployment after this exact contract binding
+Live application: `https://frontend-ashy-three-57.vercel.app`
 
 Deployment transaction: `0x22ac54cd04c89ca6a4882361271f658b1bd186d4117b6beca6904f6bad3a56a9`
 

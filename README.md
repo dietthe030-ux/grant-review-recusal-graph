@@ -7,7 +7,7 @@ A GenLayer-native workbench that reaches validator consensus on public conflict 
 - Studio Next contract: [`0x76cdD2006178858b1c48254B1d09a78c509bC4E7`](https://explorer-studio-dev.genlayer.com/address/0x76cdD2006178858b1c48254B1d09a78c509bC4E7)
 - Deployment transaction: `0x22ac54cd04c89ca6a4882361271f658b1bd186d4117b6beca6904f6bad3a56a9`
 - [Exact transaction evidence and live proof matrix](docs/VERIFICATION.md)
-- Live web app: pending Vercel redeployment for this exact Studio Next binding
+- Live web app: [frontend-ashy-three-57.vercel.app](https://frontend-ashy-three-57.vercel.app)
 
 ## Trust problem
 
