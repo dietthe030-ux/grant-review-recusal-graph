@@ -4,10 +4,10 @@ A GenLayer-native workbench that reaches validator consensus on public conflict 
 
 ## Verified links
 
-- Studionet contract: [`0x7304a94d1aE82C22fE52DB71b8D698D932AD1Dd9`](https://explorer-studio.genlayer.com/address/0x7304a94d1aE82C22fE52DB71b8D698D932AD1Dd9)
-- Deployment transaction: `0xc95cab13549c3a3265a96d2a318841d1946eb06c302c54ad1e3d6349c6ad9381`
+- Studio Next contract: [`0x76cdD2006178858b1c48254B1d09a78c509bC4E7`](https://explorer-studio-dev.genlayer.com/address/0x76cdD2006178858b1c48254B1d09a78c509bC4E7)
+- Deployment transaction: `0x22ac54cd04c89ca6a4882361271f658b1bd186d4117b6beca6904f6bad3a56a9`
 - [Exact transaction evidence and live proof matrix](docs/VERIFICATION.md)
-- Live web app: [grant-review-recusal-graph.vercel.app](https://grant-review-recusal-graph.vercel.app)
+- Live web app: pending Vercel redeployment for this exact Studio Next binding
 
 ## Trust problem
 
@@ -29,7 +29,7 @@ The central decision compares live ORCID identities and employment, PubMed co-au
 ## Architecture
 
 - `contracts/grant_review_recusal_graph.py` owns policy, authorization, consensus decisions, lifecycle transitions, panel consequences, and audit events.
-- GenLayer Studionet is the authoritative state and transaction history.
+- GenLayer Studio Next is the authoritative state and transaction history for this release.
 - `frontend/` is a static React client. It reads the contract directly and sends writes only through the explicitly selected injected wallet. It has no backend, database, indexer, or privileged decision path.
 - ORCID, PubMed, and NIH RePORTER are untrusted public evidence sources. Declared institutions are supporting metadata only.
 
@@ -73,10 +73,10 @@ Current frontend result: 6 test files / 58 tests passed; TypeScript and ESLint p
 
 ## Deployment
 
-- Network: GenLayer Studionet (`61999` / `0xf22f`)
-- RPC: `https://studio.genlayer.com/api`
-- Contract source SHA-256: `2e8f9a6639e148c2cb58a56ec40e38549abb8dd55037b68d13b56005bf49d10`
-- Upgrader: `0x34b92E6553eaCA11A00A9d86d75d8a7881779D78`
+- Network: GenLayer Studio Next (`61997` / `0xf22d`)
+- RPC: `https://studio-dev.genlayer.com/api`
+- Contract source SHA-256: `7231400CE1046CBAF2A080DB4CD62197AEAC1F15152EFDE2C99608A52D6E531A`
+- Upgrader: `0x8581c4a532dd3f9b163b12809b1bd089f367147f`
 
 The [deployment manifest](deployments/studionet.json) binds constructor, source, transaction, and address. The contract is upgradable through its authorized Root Slot path; reset and authority-loss boundaries plus the separate upgrade rehearsal are documented in [Recovery](docs/RECOVERY.md).
 

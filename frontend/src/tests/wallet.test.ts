@@ -22,7 +22,7 @@ describe('EIP-6963 Wallet Discovery Service', () => {
     }
   });
 
-  it('connects to valid provider and checks Chain ID 61999', async () => {
+  it('connects to valid provider and checks Chain ID 61997', async () => {
     const mockProvider = {
       request: vi.fn().mockImplementation(async ({ method }) => {
         if (method === 'eth_requestAccounts') {

@@ -157,7 +157,7 @@ describe('Frontend Component Integration', () => {
     );
 
     expect(screen.getByText('Grant Review Recusal Graph')).toBeInTheDocument();
-    expect(screen.getByText('Chain 61999')).toBeInTheDocument();
+    expect(screen.getByText('Chain 61997')).toBeInTheDocument();
     expect(screen.getByText('Connect Wallet')).toBeInTheDocument();
   });
 
@@ -257,11 +257,11 @@ describe('Frontend Component Integration', () => {
   it('renders VerificationPanel with exact Studionet deployment metadata and live proof rows', () => {
     render(<VerificationPanel />);
 
-    expect(screen.getByText(/0x7304a94d1aE82C22fE52DB71b8D698D932AD1Dd9/i)).toBeInTheDocument();
+    expect(screen.getByText(/0x76cdD2006178858b1c48254B1d09a78c509bC4E7/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/2e8f9a6639e148c2cb58a56ec40e38549abb8dd55037b68d13b56005bf49d10/)
+      screen.getByText(/7231400CE1046CBAF2A080DB4CD62197AEAC1F15152EFDE2C99608A52D6E531A/)
     ).toBeInTheDocument();
     expect(screen.getByText('Configured pair screening')).toBeInTheDocument();
-    expect(screen.getByText('Deterministic backup promotion')).toBeInTheDocument();
+    expect(screen.getByText('Authorized retry attempt 2')).toBeInTheDocument();
   });
 });

@@ -19,75 +19,33 @@ export const VerificationPanel: React.FC = () => {
   const releaseEvidenceMatrix = [
     {
       risk: 'Exact deployment parity',
-      tx: '0xc95cab13549c3a3265a96d2a318841d1946eb06c302c54ad1e3d6349c6ad9381',
+      tx: '0x22ac54cd04c89ca6a4882361271f658b1bd186d4117b6beca6904f6bad3a56a9',
       result: 'Deployed bytes SHA matches; upgrader matches',
       badge: 'VERIFIED',
     },
     {
       risk: 'Configured pair screening',
-      tx: '0xa1f02a3be7f2e0d1c2a4e0f6c4f83e5b0ed5cef97a2e8533ba7a422c523dfb19',
-      result: 'UNRESOLVED / EVIDENCE_HOLD / OVERSIZED_RESPONSE',
+      tx: '0x15f1825a5d50dd3837579ff06468053bbe156fdc626bb83013af54d642029a2b',
+      result: 'UNRESOLVED / EVIDENCE_HOLD / SOURCE_UNAVAILABLE_OR_INCOMPLETE',
       badge: 'HOLD',
     },
     {
-      risk: 'Unconfigured pair rejection',
-      tx: '0x055e71222bbad8d70db147b8abe15a1e0f36df23b6075974fc1cf8b91ac39bf9',
-      result: 'Configured-pair guard rejected reviewer index 1',
+      risk: 'Unauthorized retry rejection',
+      tx: '0xe0f5afcb1730fb4bccd14495de1945c6f3ac13f3d034b8b44a35ace68c15f58a',
+      result: 'Non-admin retry rejected; assessment fingerprint unchanged',
       badge: 'REJECTED',
     },
     {
       risk: 'Freeze round',
-      tx: '0x45cd58beca10517f8bf9d7a53102d70225106a32b1cf44026dba459c82c6919a',
+      tx: '0xf76bf6fb788fe99feaec4449e0de88c8d0c50c52d5e9ea132ce3d7d0c0510f4e',
       result: 'FROZEN; cohort and policy locked',
       badge: 'FROZEN',
     },
     {
-      risk: 'Applicant 0 acknowledgement',
-      tx: '0xe49587b4f6453105f036048ce2cb16dfe73a7486b5a8f401b998d380980c1930',
-      result: 'Identity acknowledged on-chain',
-      badge: 'ACKNOWLEDGED',
-    },
-    {
-      risk: 'Applicant 1 acknowledgement',
-      tx: '0x64e583e55ba43d2e3953d856a32a98bd0c795d2ebcbdd2dec5db32185652abb6',
-      result: 'Identity acknowledged on-chain',
-      badge: 'ACKNOWLEDGED',
-    },
-    {
-      risk: 'Reviewer acknowledgement',
-      tx: '0x3a8b5038ee233a8aae9ec7305ca6a1e6d2c9db28b7d4aead02488c62842c5751',
-      result: 'Assignment acknowledged on-chain',
-      badge: 'ACKNOWLEDGED',
-    },
-    {
-      risk: 'Exact oversized classification',
-      tx: '0x579886f7ea801c24b910b2ee54e87fd5c0aebcbb44ccccb8b305798d2c338727',
-      result: 'UNRESOLVED / EVIDENCE_HOLD / OVERSIZED_RESPONSE',
-      badge: 'HOLD',
-    },
-    {
-      risk: 'Deterministic backup promotion',
-      tx: '0xea5563ade59107e015da2f83291604871d181ecbce1c6443b9f76f8a0c509564',
-      result: 'App 0 BACKUP_ACTIVE Reviewer 1; App 1 PRIMARY_ACTIVE Reviewer 0',
-      badge: 'PROMOTED',
-    },
-    {
-      risk: 'Happy lifecycle finalize',
-      tx: '0x7bbe5efdaaf0d7e9939605eea779606d48345dddce99853dc3e3b4552d183970',
-      result: 'READY; quorum met',
-      badge: 'READY',
-    },
-    {
-      risk: 'Happy lifecycle activate',
-      tx: '0xb89a836a909bd7b83e5ab59c49fcd7db0357b507cc55ba85a3268b33ffe3da1c',
-      result: 'ACTIVE; two primary assignments authorized',
-      badge: 'ACTIVE',
-    },
-    {
-      risk: 'Happy lifecycle close',
-      tx: '0xe94ec050b15e5d778607433d041bf30ad2991b0490b9a06d58283ca846bb2684',
-      result: 'CLOSED; fingerprint 00dc58dbcf45af45288e0b9fcd704084ca46a51b7e267809e93d6ceba635b58c',
-      badge: 'CLOSED',
+      risk: 'Authorized retry attempt 2',
+      tx: '0x8656da5403147d3016feece4287bf763599d25646b88b53a7259cdc4f941ab28',
+      result: 'Attempt 2 persisted as UNRESOLVED / EVIDENCE_HOLD',
+      badge: 'RETRY',
     },
   ];
 
@@ -107,7 +65,7 @@ export const VerificationPanel: React.FC = () => {
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-cobalt-400" />
             <h3 className="text-sm font-semibold text-white">
-              Studionet Deployment Release Evidence
+              Studio Next Deployment Release Evidence
             </h3>
           </div>
           <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-mono text-[10px]">

@@ -2,18 +2,18 @@
 // Grant Review Recusal Graph — Network & Contract Constants
 // ============================================================================
 
-export const STUDIONET_CHAIN_ID = 61999;
-export const STUDIONET_CHAIN_HEX = '0xf22f';
-export const STUDIONET_RPC_URL = import.meta.env.VITE_GENLAYER_RPC_URL || 'https://studio.genlayer.com/api';
-export const STUDIONET_EXPLORER_URL = import.meta.env.VITE_GENLAYER_EXPLORER_URL || 'https://explorer-studio.genlayer.com';
+export const STUDIONET_CHAIN_ID = 61997;
+export const STUDIONET_CHAIN_HEX = '0xf22d';
+export const STUDIONET_RPC_URL = import.meta.env.VITE_GENLAYER_RPC_URL || 'https://studio-dev.genlayer.com/api';
+export const STUDIONET_EXPLORER_URL = import.meta.env.VITE_GENLAYER_EXPLORER_URL || 'https://explorer-studio-dev.genlayer.com';
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export const DEPLOYED_CONTRACT_ADDRESS = (
-  import.meta.env.VITE_CONTRACT_ADDRESS || '0x7304a94d1aE82C22fE52DB71b8D698D932AD1Dd9'
+  import.meta.env.VITE_CONTRACT_ADDRESS || '0x76cdD2006178858b1c48254B1d09a78c509bC4E7'
 );
 
-export const DEPLOYMENT_TX_HASH = '0xc95cab13549c3a3265a96d2a318841d1946eb06c302c54ad1e3d6349c6ad9381';
-export const EXACT_SOURCE_SHA256 = '2e8f9a6639e148c2cb58a56ec40e38549abb8dd55037b68d13b56005bf49d10';
+export const DEPLOYMENT_TX_HASH = '0x22ac54cd04c89ca6a4882361271f658b1bd186d4117b6beca6904f6bad3a56a9';
+export const EXACT_SOURCE_SHA256 = '7231400CE1046CBAF2A080DB4CD62197AEAC1F15152EFDE2C99608A52D6E531A';
 export const POLICY_VERSION = 'GRRG-V1';
 
 // Domain Limits from Contract Specification

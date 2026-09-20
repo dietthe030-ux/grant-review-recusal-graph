@@ -215,11 +215,11 @@ describe('Contract Repository (Public Reads & Authentic GenLayer RPC)', () => {
 
   it('fetches upgrader address', async () => {
     vi.spyOn(rpcCoordinator, 'readContract').mockResolvedValue(
-      '0x34b92E6553eaCA11A00A9d86d75d8a7881779D78'
+      '0x8581c4a532dd3f9b163b12809b1bd089f367147f'
     );
 
     const upgrader = await contractRepository.getUpgrader();
-    expect(upgrader).toBe('0x34b92e6553eaca11a00a9d86d75d8a7881779d78');
+    expect(upgrader).toBe('0x8581c4a532dd3f9b163b12809b1bd089f367147f');
   });
 
   it('propagates RPC errors cleanly in loadFullRoundState without falling back to mock data', async () => {

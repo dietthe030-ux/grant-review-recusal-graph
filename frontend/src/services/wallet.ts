@@ -179,7 +179,7 @@ class WalletService {
   }
 
   /**
-   * Requests wallet to switch to GenLayer Studionet (61999 / 0xf22f).
+   * Requests wallet to switch to GenLayer Studio Next (61997 / 0xf22d).
    * Automatically falls back to wallet_addEthereumChain if not registered yet.
    */
   public async switchToStudionet(provider: EIP1193Provider): Promise<boolean> {

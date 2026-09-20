@@ -63,7 +63,7 @@ export const WalletChooserModal: React.FC = () => {
         {/* Content */}
         <div className="p-5 space-y-4">
           <p className="text-xs text-slate-400 leading-relaxed">
-            Select a supported browser extension wallet to sign transactions on GenLayer Studionet (Chain 61999).
+            Select a supported browser extension wallet to sign transactions on GenLayer Studio Next (Chain 61997).
             Sessions are never persisted across page reloads.
           </p>
 
@@ -138,7 +138,7 @@ export const WalletChooserModal: React.FC = () => {
 
           <div className="pt-2 border-t border-workbench-border text-[11px] text-slate-500 flex items-center justify-between">
             <span>Protocol: EIP-6963 Standard</span>
-            <span>Target: Chain 61999 (0xf22f)</span>
+            <span>Target: Chain 61997 (0xf22d)</span>
           </div>
         </div>
       </div>

@@ -36,7 +36,7 @@ export const WalletConnector: React.FC = () => {
           type="button"
           onClick={switchToStudionet}
           className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-amber-300 bg-amber-950/80 border border-amber-800 rounded hover:bg-amber-900 transition-colors"
-          title="Click to switch wallet to GenLayer Studionet (61999)"
+          title="Click to switch wallet to GenLayer Studio Next (61997)"
         >
           <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
           <span>Switch to Studionet</span>

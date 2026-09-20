@@ -44,7 +44,7 @@ describe('Ethereum 0x Address Validator', () => {
       validateAddress('0x2000000000000000000000000000000000002000').isValid
     ).toBe(true);
     expect(
-      validateAddress('0x34b92E6553eaCA11A00A9d86d75d8a7881779D78').isValid
+      validateAddress('0x8581c4a532dd3f9b163b12809b1bd089f367147f').isValid
     ).toBe(true);
   });
 

@@ -1,26 +1,38 @@
-# Studionet Verification
+# Studio Next Verification
 
-Exact source SHA-256: `2e8f9a6639e148c2cb58a56ec40e38549abb8dd55037b68d13b56005bf49d10`
+Exact source SHA-256: `7231400CE1046CBAF2A080DB4CD62197AEAC1F15152EFDE2C99608A52D6E531A`
 
-Contract: `0x7304a94d1aE82C22fE52DB71b8D698D932AD1Dd9`
-Frontend release code commit: `0ab04b2dfba335a273c84e88fbcc96e79b51e028`
-Live application: `https://grant-review-recusal-graph.vercel.app`
+Contract: `0x76cdD2006178858b1c48254B1d09a78c509bC4E7`
+Source revision: `7b0a30486225cde9b160834948a687412db799b9`
+Network: `studio-dev` / chain `61997` / `https://studio-dev.genlayer.com/api`
+Live application: pending Vercel redeployment after this exact contract binding
 
-Deployment transaction: `0xc95cab13549c3a3265a96d2a318841d1946eb06c302c54ad1e3d6349c6ad9381`
+Deployment transaction: `0x22ac54cd04c89ca6a4882361271f658b1bd186d4117b6beca6904f6bad3a56a9`
 
-## Reviewer correction evidence
+## Current exact-source deployment evidence
 
-The prior deployment is superseded by the exact source revision above. The corrected deployment binds screening to each applicant's configured primary or backup reviewer set and validator equivalence checks cover every persisted decision-supporting evidence field.
+The deployment receipt reached `FINALIZED`, `FINISHED_WITH_RETURN`, `MAJORITY_AGREE`, leader `SUCCESS`, and byte-exact `gen_getContractCode` parity. `get_upgrader()` read back the selected actor7 address `0x8581c4a532dd3f9b163b12809b1bd089f367147f`.
 
-| Correction criterion | Transaction | Authoritative result |
+## Current Studio E2E evidence
+
+The bounded matrix contains 11 attempted rows, including two failed transport-encoding attempts that produced no state mutation. All required corrected cases pass against the exact deployed address; the public proof is summarized below and each transaction can be independently verified in the Studio Next explorer.
+
+| Case | Transaction | Authoritative result |
 |---|---|---|
-| Corrected deployment | `0xc95cab13549c3a3265a96d2a318841d1946eb06c302c54ad1e3d6349c6ad9381` | `FINALIZED`; contract `0x7304a94d1aE82C22fE52DB71b8D698D932AD1Dd9`; source SHA matches |
-| Configured pair screening | `0xa1f02a3be7f2e0d1c2a4e0f6c4f83e5b0ed5cef97a2e8533ba7a422c523dfb19` | `FINALIZED / SUCCESS`; configured pair `(0,0)` recorded `UNRESOLVED / EVIDENCE_HOLD / OVERSIZED_RESPONSE` |
-| Unconfigured pair rejection | `0x055e71222bbad8d70db147b8abe15a1e0f36df23b6075974fc1cf8b91ac39bf9` | `FINALIZED / ERROR`; `[rollback] Cannot screen pair: reviewer is not configured for applicant` |
-| Validator evidence binding | `0xa1f02a3be7f2e0d1c2a4e0f6c4f83e5b0ed5cef97a2e8533ba7a422c523dfb19` | Consensus validators agreed on the complete persisted evidence tuple |
+| Create round | `0xe266edd4ee2756e06a8b3a1ed872c29328a078280629427707edc6e7d589f1ef` | `FINALIZED / FINISHED_WITH_RETURN`; round `0` read back `DRAFT` |
+| Add applicant | `0x8c1516bcf689c62bc269250f5c474232a7ab7686b787e8d2c11fc659b0909b77` | Exact applicant identity read back |
+| Add reviewers | `0x6077661562851983a3a856d04980aee47748095e7d852144af81db831dcb7e21`, `0x9363264025f11681208963e5df9717107f2b557360edb07c19a7fc7801af57d8` | Exact primary reviewer identities read back |
+| Set assignment | `0xe34e2a1216d5908201823f7939c86be60ba5497883175a781a490fa5d744ad00` | `FINALIZED / FINISHED_WITH_RETURN`; primary `0`, canonical backup parse empty, `PLANNED` |
+| Freeze round | `0xf76bf6fb788fe99feaec4449e0de88c8d0c50c52d5e9ea132ce3d7d0c0510f4e` | `FROZEN`; counts and policy read back |
+| Live fail-closed screening | `0x15f1825a5d50dd3837579ff06468053bbe156fdc626bb83013af54d642029a2b` | Attempt 1: `UNRESOLVED / EVIDENCE_HOLD / SOURCE_UNAVAILABLE_OR_INCOMPLETE`; reviewer ORCID `404` |
+| Unauthorized retry | `0xe0f5afcb1730fb4bccd14495de1945c6f3ac13f3d034b8b44a35ace68c15f58a` | `FINALIZED / FINISHED_WITH_ERROR`; actor8 rejected; fingerprint and attempt unchanged |
+| Authorized retry | `0x8656da5403147d3016feece4287bf763599d25646b88b53a7259cdc4f941ab28` | Attempt 2 persisted as `UNRESOLVED / EVIDENCE_HOLD / SOURCE_UNAVAILABLE_OR_INCOMPLETE` |
 
-Every success below was read back after `FINALIZED`, `MAJORITY_AGREE`, and leader `SUCCESS`.
-Expected rejection rows were `FINALIZED` with leader `ERROR`, followed by an unchanged authoritative readback.
+Every passing write was independently reconciled to finality, semantic execution, consensus and authoritative readback. Expected rejection and transport-failure rows remain recorded rather than omitted.
+
+## Historical superseded deployment evidence
+
+The sections below retain older deployment records for audit history only; they are not claims against the current address above.
 
 ## Prior superseded deployment proof matrix
 
